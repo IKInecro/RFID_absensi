@@ -1,100 +1,106 @@
 <div class="space-y-6">
   <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-    <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Live Feed Absensi</h2>
-
+    <h2 class="text-xl font-semibold mb-4">Live Feed Absensi</h2>
     <div id="live-table" class="overflow-x-auto">
-      <p class="text-gray-600 dark:text-gray-300">Memuat data...</p>
+      <p class="text-gray-600">Memuat data...</p>
     </div>
   </div>
 </div>
 
-<!-- Container Notifikasi -->
-<div id="notif-container" class="fixed top-5 right-5 space-y-2 z-50"></div>
-
-<!-- Suara Beep -->
-<audio id="notif-sound" preload="auto">
-  <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
-</audio>
+<!-- Notif area -->
+<div id="notif-area" class="fixed inset-0 flex items-center justify-center pointer-events-none z-50 p-6">
+  <div id="notif-grid" class="grid gap-4 max-w-3xl"></div>
+</div>
 
 <script>
-let lastTimestamp = null; // simpan data terakhir
+let lastTimestamp = null;
+const notifGrid = document.getElementById('notif-grid');
 
 async function loadLiveFeed(){
-    try{
-        const res = await fetch('fetch_live_feed.php');
-        const logs = await res.json();
+  try{
+    const res = await fetch('fetch_live_feed.php');
+    const logs = await res.json();
 
-        if(logs.length === 0){
-            document.getElementById('live-table').innerHTML =
-              "<p class='text-gray-600 dark:text-gray-300'>Belum ada data</p>";
-            return;
-        }
-
-        // Render tabel
-        let html = `
-        <table class="w-full border border-gray-300 dark:border-gray-700 border-collapse text-sm">
-          <thead>
-            <tr class="bg-blue-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200">
-              <th class="border p-2">Tanggal/Waktu</th>
-              <th class="border p-2">Nama</th>
-              <th class="border p-2">Kelas</th>
-              <th class="border p-2">Card ID</th>
-              <th class="border p-2">Device</th>
-              <th class="border p-2">Status</th>
-            </tr>
-          </thead>
-          <tbody>`;
-        logs.forEach(row=>{
-            const color = row.schedule_status === 'Late'
-                ? 'text-red-600'
-                : row.schedule_status === 'On Time'
-                    ? 'text-green-600'
-                    : 'text-purple-600';
-            html += `
-            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-              <td class="border p-2 dark:border-gray-700">${row.timestamp}</td>
-              <td class="border p-2 dark:border-gray-700">${row.name??''}</td>
-              <td class="border p-2 dark:border-gray-700">${row.class??''}</td>
-              <td class="border p-2 dark:border-gray-700">${row.card_id}</td>
-              <td class="border p-2 dark:border-gray-700">${row.device_id}</td>
-              <td class="border p-2 dark:border-gray-700 font-semibold ${color}">${row.schedule_status}</td>
-            </tr>`;
-        });
-        html += "</tbody></table>";
-        document.getElementById('live-table').innerHTML = html;
-
-        // 🔔 Deteksi data baru
-        if(lastTimestamp && logs[0].timestamp !== lastTimestamp){
-            showNotification(logs[0]);
-        }
-        lastTimestamp = logs[0].timestamp;
-
-    }catch(e){
-        document.getElementById('live-table').innerHTML =
-          "<p class='text-red-500'>Gagal memuat data</p>";
+    if(!logs.length){
+      document.getElementById('live-table').innerHTML = "<p class='text-gray-600'>Belum ada data</p>";
+      return;
     }
+
+    // render table
+    let html = `<table class="w-full text-sm"><thead><tr class="bg-gray-100 dark:bg-gray-700">
+      <th class="p-2">Waktu</th><th class="p-2">Nama</th><th class="p-2">Kelas</th><th class="p-2">Card</th><th class="p-2">Device</th><th class="p-2">Status</th>
+    </tr></thead><tbody>`;
+    logs.forEach(row=>{
+      html += `<tr class="border-b dark:border-gray-700">
+        <td class="p-2">${row.timestamp}</td>
+        <td class="p-2">${row.name ?? ''}</td>
+        <td class="p-2">${row.class ?? ''}</td>
+        <td class="p-2">${row.card_id}</td>
+        <td class="p-2">${row.device_id}</td>
+        <td class="p-2 font-semibold ${row.schedule_status==='Late'?'text-red-500':'text-green-500'}">${row.schedule_status}</td>
+      </tr>`;
+    });
+    html += "</tbody></table>";
+    document.getElementById('live-table').innerHTML = html;
+
+    // detect new entry
+    if(lastTimestamp && logs[0].timestamp !== lastTimestamp){
+      showNotif(logs[0]);
+    }
+    lastTimestamp = logs[0].timestamp;
+
+  } catch(e){
+    document.getElementById('live-table').innerHTML = "<p class='text-red-500'>Gagal memuat</p>";
+  }
 }
 
-// 🔔 Fungsi Tampilkan Notifikasi
-function showNotification(row){
-    const container = document.getElementById('notif-container');
-    const notif = document.createElement('div');
-    notif.className = "bg-blue-600 text-white px-4 py-2 rounded shadow-md animate-bounce";
-    notif.innerHTML = `
-      <strong>${row.name ?? 'Unknown'}</strong> (${row.class ?? '-'})<br>
-      <small>${row.timestamp} — ${row.schedule_status}</small>
-    `;
-    container.appendChild(notif);
+function showNotif(row){
+  const card = document.createElement('div');
+  card.className = "notif-card bg-gray-800 text-white p-4 rounded-xl shadow-lg w-64 text-center pointer-events-auto";
 
-    // Suara beep
-    document.getElementById('notif-sound').play();
+  // handle default.png → use assets/img/default-avatar.png
+  let imgSrc;
+  if(!row.profile_pic || row.profile_pic === 'default.png'){
+    imgSrc = 'assets/img/default-avatar.png';
+  } else {
+    imgSrc = `uploads/${row.profile_pic}`;
+  }
 
-    // Hilang setelah 5 detik
-    setTimeout(()=> notif.remove(), 5000);
+  card.innerHTML = `
+    <img src="${imgSrc}" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover" alt="profile">
+    <div class="font-bold">${row.name ?? 'Unknown'}</div>
+    <div class="text-sm">${row.class ?? '-'}</div>
+    <div class="mt-2 text-xs">${row.timestamp} — <span class="${row.schedule_status==='Late'?'text-red-400':'text-green-400'} font-semibold">${row.schedule_status}</span></div>
+  `;
+  notifGrid.appendChild(card);
+
+  // limit max cards
+  const max = 9;
+  while(notifGrid.children.length > max){
+    notifGrid.removeChild(notifGrid.firstChild);
+  }
+
+  // auto remove after 3s
+  setTimeout(()=> {
+    card.style.transition = "opacity 0.3s, transform 0.3s";
+    card.style.opacity = 0;
+    card.style.transform = "scale(0.95)";
+    setTimeout(()=> card.remove(), 300);
+  }, 3000);
 }
 
-// Jalankan pertama kali
+// initial
 loadLiveFeed();
-// Auto refresh tiap 5 detik
-setInterval(loadLiveFeed, 5000);
+setInterval(loadLiveFeed, 4000);
 </script>
+
+<style>
+#notif-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  justify-items: center;
+  align-items: center;
+}
+.notif-card img { object-fit: cover; }
+</style>

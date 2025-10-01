@@ -1,24 +1,17 @@
 <?php
-$page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
-
 switch($page){
-    case 'dashboard':
-        include 'pages/dashboard.php';
-        break;
-    case 'students':
-        include 'pages/students.php';
-        break;
-    case 'schedule':   // <<< INI ROUTER UNTUK HALAMAN JADWAL
-        include 'pages/schedule.php';
-        break;
-    default:
-        include 'pages/dashboard.php';
-    case 'attendance_log':
-    $pageTitle = "Riwayat Absensi";
-        include 'pages/attendance_log.php';
-        break;
-    case 'live_feed':
-    $pageTitle = "Live Feed Absensi";
+  case 'students':
+    include 'pages/students.php';
+    break;
+  case 'schedule':
+    include 'pages/schedule.php';
+    break;
+  case 'attendance_log':
+    include 'pages/attendance_log.php';
+    break;
+  case 'live_feed':
     include 'pages/live_feed.php';
     break;
+  default:
+    include 'pages/dashboard.php';
 }

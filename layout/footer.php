@@ -1,13 +1,10 @@
 </main>
-  </div> <!-- end content wrapper -->
-</div> <!-- end flex -->
+  </div>
+</div>
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const html = document.documentElement;
-  const btn = document.getElementById("toggle-theme");
-
-  // === Clock WIB ===
+  // Clock WIB
   function updateClock(){
     const el = document.getElementById("clock");
     if(!el) return;
@@ -18,23 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   setInterval(updateClock, 1000);
   updateClock();
-
-  // === Theme Toggle ===
-  const saved = localStorage.getItem("theme");
-  if(saved === "dark"){
-    html.classList.add("dark");
-  } else {
-    html.classList.remove("dark");
-  }
-
-  btn.addEventListener("click", () => {
-    html.classList.toggle("dark");
-    if(html.classList.contains("dark")){
-      localStorage.setItem("theme", "dark");
-    } else {
-      localStorage.setItem("theme", "light");
-    }
-  });
 });
 </script>
 
