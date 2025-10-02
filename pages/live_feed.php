@@ -1,106 +1,127 @@
-<div class="space-y-6">
+<?php
+include 'db.php';
+
+// ambil data awal (biar tabel gak kosong pas load pertama)
+$res = $conn->query("SELECT a.*, s.name, s.class, s.profile_pic 
+                     FROM attendance_log a 
+                     LEFT JOIN students s ON a.student_id=s.id 
+                     ORDER BY a.timestamp DESC LIMIT 20");
+?>
+<div class="relative">
+  <!-- Container untuk bubble notifikasi -->
+  <div id="bubble-container" class="fixed inset-0 flex items-start justify-center pointer-events-none z-50 p-4 flex-wrap gap-4"></div>
+
+  <!-- Live Feed Table -->
   <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
     <h2 class="text-xl font-semibold mb-4">Live Feed Absensi</h2>
-    <div id="live-table" class="overflow-x-auto">
-      <p class="text-gray-600">Memuat data...</p>
-    </div>
+    <table id="feed-table" class="w-full text-sm">
+      <thead>
+        <tr class="bg-gray-100 dark:bg-gray-700">
+          <th class="p-2">Foto</th>
+          <th class="p-2">Nama</th>
+          <th class="p-2">Kelas</th>
+          <th class="p-2">UID</th>
+          <th class="p-2">Status</th>
+          <th class="p-2">Waktu</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php while($row = $res->fetch_assoc()): ?>
+        <tr class="border-b dark:border-gray-700 <?= $row['status']==='Unknown' ? 'bg-red-100 dark:bg-red-900' : '' ?>">
+          <td class="p-2">
+            <img src="uploads/<?= $row['profile_pic'] ?: 'default.png' ?>" 
+                 class="w-10 h-10 rounded-full border"
+                 onerror="this.src='uploads/default.png'">
+          </td>
+          <td class="p-2"><?= $row['student_id'] ? htmlspecialchars($row['name']) : 'Kartu Tidak Dikenal' ?></td>
+          <td class="p-2"><?= $row['student_id'] ? htmlspecialchars($row['class']) : '-' ?></td>
+          <td class="p-2"><?= htmlspecialchars($row['card_id']) ?></td>
+          <td class="p-2"><?= htmlspecialchars($row['status']) ?></td>
+          <td class="p-2"><?= $row['timestamp'] ?></td>
+        </tr>
+        <?php endwhile; ?>
+      </tbody>
+    </table>
   </div>
 </div>
 
-<!-- Notif area -->
-<div id="notif-area" class="fixed inset-0 flex items-center justify-center pointer-events-none z-50 p-6">
-  <div id="notif-grid" class="grid gap-4 max-w-3xl"></div>
-</div>
-
+<!-- Import Bubble JS -->
 <script>
-let lastTimestamp = null;
-const notifGrid = document.getElementById('notif-grid');
+function showBubble(student) {
+  const container = document.getElementById("bubble-container");
 
-async function loadLiveFeed(){
-  try{
-    const res = await fetch('fetch_live_feed.php');
-    const logs = await res.json();
+  const bubble = document.createElement("div");
+  bubble.className = "bg-white dark:bg-gray-700 shadow-xl rounded-2xl p-4 w-64 flex items-center gap-3 animate-fade-in";
 
-    if(!logs.length){
-      document.getElementById('live-table').innerHTML = "<p class='text-gray-600'>Belum ada data</p>";
-      return;
-    }
-
-    // render table
-    let html = `<table class="w-full text-sm"><thead><tr class="bg-gray-100 dark:bg-gray-700">
-      <th class="p-2">Waktu</th><th class="p-2">Nama</th><th class="p-2">Kelas</th><th class="p-2">Card</th><th class="p-2">Device</th><th class="p-2">Status</th>
-    </tr></thead><tbody>`;
-    logs.forEach(row=>{
-      html += `<tr class="border-b dark:border-gray-700">
-        <td class="p-2">${row.timestamp}</td>
-        <td class="p-2">${row.name ?? ''}</td>
-        <td class="p-2">${row.class ?? ''}</td>
-        <td class="p-2">${row.card_id}</td>
-        <td class="p-2">${row.device_id}</td>
-        <td class="p-2 font-semibold ${row.schedule_status==='Late'?'text-red-500':'text-green-500'}">${row.schedule_status}</td>
-      </tr>`;
-    });
-    html += "</tbody></table>";
-    document.getElementById('live-table').innerHTML = html;
-
-    // detect new entry
-    if(lastTimestamp && logs[0].timestamp !== lastTimestamp){
-      showNotif(logs[0]);
-    }
-    lastTimestamp = logs[0].timestamp;
-
-  } catch(e){
-    document.getElementById('live-table').innerHTML = "<p class='text-red-500'>Gagal memuat</p>";
-  }
-}
-
-function showNotif(row){
-  const card = document.createElement('div');
-  card.className = "notif-card bg-gray-800 text-white p-4 rounded-xl shadow-lg w-64 text-center pointer-events-auto";
-
-  // handle default.png → use assets/img/default-avatar.png
-  let imgSrc;
-  if(!row.profile_pic || row.profile_pic === 'default.png'){
-    imgSrc = 'assets/img/default-avatar.png';
-  } else {
-    imgSrc = `uploads/${row.profile_pic}`;
-  }
-
-  card.innerHTML = `
-    <img src="${imgSrc}" class="w-16 h-16 rounded-full mx-auto mb-2 object-cover" alt="profile">
-    <div class="font-bold">${row.name ?? 'Unknown'}</div>
-    <div class="text-sm">${row.class ?? '-'}</div>
-    <div class="mt-2 text-xs">${row.timestamp} — <span class="${row.schedule_status==='Late'?'text-red-400':'text-green-400'} font-semibold">${row.schedule_status}</span></div>
+  bubble.innerHTML = `
+    <img src="uploads/${student.profile_pic || 'default.png'}"
+         class="w-12 h-12 rounded-full border"
+         onerror="this.src='uploads/default.png'">
+    <div>
+      <p class="font-semibold">${student.name || 'Kartu Tidak Dikenal'}</p>
+      <p class="text-sm text-gray-500">${student.class || '-'}</p>
+      <span class="text-xs px-2 py-1 rounded-full ${
+        student.status === 'On Time' ? 'bg-green-500 text-white' : 
+        student.status === 'Late' ? 'bg-yellow-500 text-white' : 
+        student.status === 'Holiday' ? 'bg-gray-500 text-white' :
+        'bg-red-600 text-white'
+      }">${student.status}</span>
+    </div>
   `;
-  notifGrid.appendChild(card);
 
-  // limit max cards
-  const max = 9;
-  while(notifGrid.children.length > max){
-    notifGrid.removeChild(notifGrid.firstChild);
-  }
+  container.appendChild(bubble);
 
-  // auto remove after 3s
-  setTimeout(()=> {
-    card.style.transition = "opacity 0.3s, transform 0.3s";
-    card.style.opacity = 0;
-    card.style.transform = "scale(0.95)";
-    setTimeout(()=> card.remove(), 300);
+  setTimeout(() => {
+    bubble.classList.add("animate-fade-out");
+    setTimeout(() => bubble.remove(), 500);
   }, 3000);
 }
 
-// initial
-loadLiveFeed();
-setInterval(loadLiveFeed, 4000);
-</script>
-
-<style>
-#notif-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 12px;
-  justify-items: center;
-  align-items: center;
+function fetchFeed(){
+  fetch('api/get_feed.php')
+    .then(res=>res.json())
+    .then(data=>{
+      const tbody = document.querySelector("#feed-table tbody");
+      tbody.innerHTML = "";
+      data.forEach(item=>{
+        tbody.innerHTML += `
+          <tr class="border-b dark:border-gray-700 ${item.status==='Unknown' ? 'bg-red-100 dark:bg-red-900' : ''}">
+            <td class="p-2">
+              <img src="uploads/${item.profile_pic || 'default.png'}"
+                   class="w-10 h-10 rounded-full border"
+                   onerror="this.src='uploads/default.png'">
+            </td>
+            <td class="p-2">${item.name}</td>
+            <td class="p-2">${item.class}</td>
+            <td class="p-2">${item.card_id}</td>
+            <td class="p-2">${item.status}</td>
+            <td class="p-2">${item.timestamp}</td>
+          </tr>
+        `;
+        showBubble(item);
+      });
+    });
 }
-.notif-card img { object-fit: cover; }
-</style>
+
+setInterval(fetchFeed, 5000);
+
+// CSS animasi bubble
+const style = document.createElement("style");
+style.innerHTML = `
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+  }
+  .animate-fade-out {
+    animation: fadeOut 0.5s ease forwards;
+  }
+  @keyframes fadeIn {
+    from { opacity:0; transform: translateY(20px); }
+    to { opacity:1; transform: translateY(0); }
+  }
+  @keyframes fadeOut {
+    from { opacity:1; transform: translateY(0); }
+    to { opacity:0; transform: translateY(-20px); }
+  }
+`;
+document.head.appendChild(style);
+</script>

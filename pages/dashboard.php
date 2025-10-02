@@ -46,8 +46,19 @@ for($i=6; $i>=0; $i--){
     $dataOnTime[] = $rowOn['c'];
     $dataLate[]   = $rowLate['c'];
 }
+$reg_mode = $conn->query("SELECT reg_mode FROM settings WHERE id=1")->fetch_assoc()['reg_mode'];
 ?>
 <div class="space-y-8">
+
+<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-6">
+  <h2 class="text-lg font-semibold mb-3">Register Mode</h2>
+  <form action="action_register.php" method="POST">
+    <input type="hidden" name="toggle_reg_mode" value="<?= $reg_mode ? 0 : 1 ?>">
+    <button type="submit" class="px-4 py-2 rounded <?= $reg_mode ? 'bg-red-600 text-white' : 'bg-green-600 text-white' ?>">
+      <?= $reg_mode ? 'Matikan Register Mode' : 'Aktifkan Register Mode' ?>
+    </button>
+  </form>
+</div>
 
   <!-- Statistik Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
