@@ -1,4 +1,4 @@
-```php
+
 <?php
 require_once '../db.php';
 header('Content-Type: application/json');
@@ -17,4 +17,3 @@ if ($conn->query("DELETE FROM attendance_log")) {
   echo json_encode(['success' => false, 'error' => $conn->error]);
 }
 ?>
-```

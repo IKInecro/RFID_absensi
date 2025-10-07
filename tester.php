@@ -1,4 +1,4 @@
-```php
+
 <?php
 include 'db.php';
 
@@ -88,4 +88,3 @@ document.getElementById('clearBtn').addEventListener('click', async ()=>{
 loadTester();
 setInterval(loadTester, 3000);
 </script>
-```

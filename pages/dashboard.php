@@ -1,12 +1,16 @@
+```php
 <?php
 include 'db.php';
-date_default_timezone_set('Asia/Jakarta'); // ganti sesuai zona
+date_default_timezone_set('Asia/Jakarta'); // ganti sesuai zona waktu
+
+// ===== Ambil Mode dari settings =====
+$setting = $conn->query("SELECT reg_mode, test_mode FROM settings WHERE id = 1")->fetch_assoc();
+$reg_mode = intval($setting['reg_mode']);
+$testMode = intval($setting['test_mode']);
 
 // ===== Statistik =====
-// Total siswa aktif
 $totalStudents = $conn->query("SELECT COUNT(*) as c FROM students WHERE status='active'")->fetch_assoc()['c'];
 
-// Total hadir hari ini
 $today = date('Y-m-d');
 $totalToday = $conn->query("
     SELECT COUNT(*) as c FROM attendance_log 
@@ -14,14 +18,12 @@ $totalToday = $conn->query("
       AND schedule_status IN ('On Time','Late')
 ")->fetch_assoc()['c'];
 
-// Total terlambat hari ini
 $lateToday = $conn->query("
     SELECT COUNT(*) as c FROM attendance_log 
     WHERE DATE(timestamp)='$today' 
       AND schedule_status='Late'
 ")->fetch_assoc()['c'];
 
-// Cek apakah hari ini libur
 $day = date('D');
 $isHoliday = $conn->query("SELECT is_holiday FROM schedules WHERE day='$day' LIMIT 1")
                  ->fetch_assoc()['is_holiday'] ?? 0;
@@ -46,19 +48,36 @@ for($i=6; $i>=0; $i--){
     $dataOnTime[] = $rowOn['c'];
     $dataLate[]   = $rowLate['c'];
 }
-$reg_mode = $conn->query("SELECT reg_mode FROM settings WHERE id=1")->fetch_assoc()['reg_mode'];
 ?>
+
 <div class="space-y-8">
 
-<div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-6">
-  <h2 class="text-lg font-semibold mb-3">Register Mode</h2>
-  <form action="action_register.php" method="POST">
-    <input type="hidden" name="toggle_reg_mode" value="<?= $reg_mode ? 0 : 1 ?>">
-    <button type="submit" class="px-4 py-2 rounded <?= $reg_mode ? 'bg-red-600 text-white' : 'bg-green-600 text-white' ?>">
-      <?= $reg_mode ? 'Matikan Register Mode' : 'Aktifkan Register Mode' ?>
-    </button>
-  </form>
-</div>
+  <!-- Toggle Mode -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Register Mode -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+      <h2 class="text-lg font-semibold mb-3">Register Mode</h2>
+      <form action="action_register.php" method="POST">
+        <input type="hidden" name="toggle_reg_mode" value="<?= $reg_mode ? 0 : 1 ?>">
+        <button type="submit" class="px-4 py-2 rounded <?= $reg_mode ? 'bg-red-600 text-white' : 'bg-green-600 text-white' ?>">
+          <?= $reg_mode ? 'Matikan Register Mode' : 'Aktifkan Register Mode' ?>
+        </button>
+      </form>
+    </div>
+
+    <!-- Test Mode -->
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
+      <h2 class="text-lg font-semibold mb-3">Test Mode</h2>
+      <form method="POST" action="toggle_testmode.php">
+        <input type="hidden" name="new_mode" value="<?= $testMode ? 0 : 1 ?>">
+        <button type="submit"
+          class="px-4 py-2 rounded font-semibold text-white
+          <?= $testMode ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-gray-700 hover:bg-gray-800' ?>">
+          <?= $testMode ? '🧪 Test Mode Aktif' : 'Aktifkan Test Mode' ?>
+        </button>
+      </form>
+    </div>
+  </div>
 
   <!-- Statistik Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -95,26 +114,14 @@ $reg_mode = $conn->query("SELECT reg_mode FROM settings WHERE id=1")->fetch_asso
 <script>
 const ctx = document.getElementById('attendanceChart').getContext('2d');
 new Chart(ctx, {
-    type: 'lin// ganti semua schedule_status menjadi status
-    $totalToday = $conn->query("
-    SELECT COUNT(*) as c FROM attendance_log 
-    WHERE DATE(timestamp)='$today' 
-      AND status IN ('ontime','late')
-")->fetch_assoc()['c'];
-
-$lateToday = $conn->query("
-    SELECT COUNT(*) as c FROM attendance_log 
-    WHERE DATE(timestamp)='$today' 
-      AND status='late'
-")->fetch_assoc()['c'];
-e',
+    type: 'line',
     data: {
         labels: <?= json_encode($labels) ?>,
         datasets: [
             {
                 label: 'On Time',
                 data: <?= json_encode($dataOnTime) ?>,
-                borderColor: 'rgb(37, 99, 235)', // biru
+                borderColor: 'rgb(37, 99, 235)',
                 backgroundColor: 'rgba(37, 99, 235, 0.2)',
                 tension: 0.3,
                 fill: true
@@ -122,7 +129,7 @@ e',
             {
                 label: 'Late',
                 data: <?= json_encode($dataLate) ?>,
-                borderColor: 'rgb(239, 68, 68)', // merah
+                borderColor: 'rgb(239, 68, 68)',
                 backgroundColor: 'rgba(239, 68, 68, 0.2)',
                 tension: 0.3,
                 fill: true
@@ -134,8 +141,7 @@ e',
         plugins: {
             legend: {
                 labels: {
-                    color: getComputedStyle(document.documentElement)
-                           .getPropertyValue('--tw-prose-body')
+                    color: getComputedStyle(document.documentElement).getPropertyValue('--tw-prose-body')
                 }
             }
         },
@@ -146,3 +152,4 @@ e',
     }
 });
 </script>
+```

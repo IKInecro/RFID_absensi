@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 06, 2025 at 06:06 PM
+-- Generation Time: Oct 07, 2025 at 03:42 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,9 +43,11 @@ CREATE TABLE `attendance_log` (
 --
 
 INSERT INTO `attendance_log` (`id`, `student_id`, `card_id`, `device_id`, `timestamp`, `status`, `schedule_status`, `location`) VALUES
-(1, 2, '12345678', 'ESP8266-1', '2025-10-01 10:17:17', 'On Time', 'On Time', NULL),
-(2, 17, '534BCEEE', 'ESP8266-1', '2025-10-06 22:45:11', 'Late', 'On Time', 'Gate'),
-(3, 18, '6E283206', 'ESP8266-1', '2025-10-06 22:48:29', 'Late', 'On Time', 'Gate');
+(89, 21, 'E34FCBEE', 'ESP8266-1', '2025-10-07 16:50:06', 'On Time', '', NULL),
+(90, 25, 'F34DCBEE', 'ESP8266-1', '2025-10-07 17:11:40', 'On Time', '', NULL),
+(91, 23, '534BCEEE', 'ESP8266-1', '2025-10-07 17:14:40', 'On Time', '', NULL),
+(92, 12, '038FD9EE', 'ESP8266-1', '2025-10-07 17:15:14', 'On Time', '', NULL),
+(93, 2, '6E283206', 'ESP8266-1', '2025-10-07 20:22:29', 'On Time', '', NULL);
 
 -- --------------------------------------------------------
 
@@ -83,15 +85,16 @@ INSERT INTO `schedules` (`id`, `day`, `time_in`, `time_out`, `grace_period`, `is
 
 CREATE TABLE `settings` (
   `id` int(11) NOT NULL,
-  `reg_mode` tinyint(1) DEFAULT 0
+  `reg_mode` tinyint(1) DEFAULT 0,
+  `test_mode` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `settings`
 --
 
-INSERT INTO `settings` (`id`, `reg_mode`) VALUES
-(1, 0);
+INSERT INTO `settings` (`id`, `reg_mode`, `test_mode`) VALUES
+(1, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -114,14 +117,11 @@ CREATE TABLE `students` (
 --
 
 INSERT INTO `students` (`id`, `name`, `class`, `card_id`, `status`, `created_at`, `profile_pic`) VALUES
-(2, 'MARCO', 'XII IPA 2', '12345678', 'active', '2025-10-01 08:08:28', 'p_68dcfb9ed4714.jpg'),
-(12, 'nurul zahra', 'XII IPA 2', '038FD9EE', 'active', '2025-10-06 15:39:25', 'default.png'),
-(13, '', '', 'D056675F', 'active', '2025-10-06 15:43:21', 'default.png'),
-(14, '', '', 'A345CAEE', 'active', '2025-10-06 15:43:28', 'default.png'),
-(15, '', '', 'E34FCBEE', 'active', '2025-10-06 15:43:36', 'default.png'),
-(16, '', '', 'F34DCBEE', 'active', '2025-10-06 15:43:42', 'default.png'),
-(17, '', '', '534BCEEE', 'active', '2025-10-06 15:43:49', 'default.png'),
-(18, '', '', '6E283206', 'active', '2025-10-06 15:43:57', 'default.png');
+(2, 'MARCO', 'XII IPA 2', '6E283206', 'active', '2025-10-01 08:08:28', 'p_68dcfb9ed4714.jpg'),
+(12, 'NURUL ZAHRA', 'XII IPA 2', '038FD9EE', 'active', '2025-10-06 15:39:25', 'default.png'),
+(21, 'EKA SRI MULYANI', 'XII IPA 2', 'E34FCBEE', 'active', '2025-10-06 16:42:36', 'default.png'),
+(23, 'DAMAR MAYA', 'XII IPA 2', '534BCEEE', 'active', '2025-10-06 16:42:46', 'default.png'),
+(25, 'MUHTADIN', 'XII IPA 2', 'F34DCBEE', 'active', '2025-10-06 16:42:50', 'default.png');
 
 --
 -- Indexes for dumped tables
@@ -132,7 +132,7 @@ INSERT INTO `students` (`id`, `name`, `class`, `card_id`, `status`, `created_at`
 --
 ALTER TABLE `attendance_log`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `student_id` (`student_id`);
+  ADD KEY `attendance_log_ibfk_1` (`student_id`);
 
 --
 -- Indexes for table `schedules`
@@ -161,7 +161,7 @@ ALTER TABLE `students`
 -- AUTO_INCREMENT for table `attendance_log`
 --
 ALTER TABLE `attendance_log`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=94;
 
 --
 -- AUTO_INCREMENT for table `schedules`
@@ -179,7 +179,7 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- Constraints for dumped tables
@@ -189,7 +189,7 @@ ALTER TABLE `students`
 -- Constraints for table `attendance_log`
 --
 ALTER TABLE `attendance_log`
-  ADD CONSTRAINT `attendance_log_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`);
+  ADD CONSTRAINT `attendance_log_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

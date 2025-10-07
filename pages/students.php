@@ -1,54 +1,70 @@
+```php
 <?php
-// pages/students.php
 include 'db.php';
 
-// pagination
+// Pagination
 $limit = 10;
 $pageNo = isset($_GET['p']) ? max(1, (int)$_GET['p']) : 1;
 $offset = ($pageNo-1) * $limit;
 
-// filters
-$kelas = isset($_GET['kelas']) ? $conn->real_escape_string($_GET['kelas']) : '';
-$sub   = isset($_GET['sub']) ? $conn->real_escape_string($_GET['sub']) : '';
+// Filter
+$classFilter = isset($_GET['class']) ? $conn->real_escape_string($_GET['class']) : '';
 $search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
 
 $where = [];
-if($kelas) $where[] = "class LIKE '{$kelas}%'";
-if($sub) $where[] = "class = '{$kelas}-{$sub}'";
-if($search) $where[] = "(name LIKE '%$search%' OR card_id LIKE '%$search%')";
-
+if ($classFilter) $where[] = "class = '$classFilter'";
+if ($search) $where[] = "(name LIKE '%$search%' OR card_id LIKE '%$search%')";
 $whereSql = $where ? "WHERE " . implode(" AND ", $where) : "";
 
-// total rows
+// Total data
 $totalRows = $conn->query("SELECT COUNT(*) as c FROM students $whereSql")->fetch_assoc()['c'];
 $totalPages = ceil($totalRows / $limit);
 
-// fetch data
+// Fetch data siswa
 $res = $conn->query("SELECT * FROM students $whereSql ORDER BY id DESC LIMIT $limit OFFSET $offset");
 
-// for edit
+// Data untuk edit
 $edit_id = isset($_GET['edit']) ? (int)$_GET['edit'] : 0;
 $edit_data = null;
-if($edit_id){
-    $r = $conn->query("SELECT * FROM students WHERE id=$edit_id");
-    $edit_data = $r->fetch_assoc();
+if ($edit_id) {
+  $r = $conn->query("SELECT * FROM students WHERE id=$edit_id");
+  $edit_data = $r->fetch_assoc();
 }
+
+// Daftar kelas tetap
+$kelasList = [
+  'XII IPA 1','XII IPA 2','XII IPS 1','XII IPS 2',
+  'XI IPA 1','XI IPA 2','XI IPS 1','XI IPS 2',
+  'X 1','X 2','X 3','X 4'
+];
 ?>
 <div class="space-y-6">
-  <!-- Form Add/Edit -->
+
+  <!-- Form Tambah / Edit -->
   <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-    <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200"><?= $edit_data ? "Edit Siswa" : "Tambah Siswa" ?></h2>
+    <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
+      <?= $edit_data ? "Edit Siswa" : "Tambah Siswa" ?>
+    </h2>
+
     <form action="action_student.php" method="POST" enctype="multipart/form-data" class="space-y-4">
       <input type="hidden" name="id" value="<?= $edit_data['id'] ?? '' ?>">
+
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label class="block mb-1">Nama</label>
           <input name="name" required value="<?= htmlspecialchars($edit_data['name'] ?? '') ?>" class="w-full p-2 border rounded dark:bg-gray-700">
         </div>
+
         <div>
-          <label class="block mb-1">Kelas (contoh: 11-A)</label>
-          <input name="class" required value="<?= htmlspecialchars($edit_data['class'] ?? '') ?>" class="w-full p-2 border rounded dark:bg-gray-700">
+          <label class="block mb-1">Kelas</label>
+          <select name="class" required class="w-full p-2 border rounded dark:bg-gray-700">
+            <option value="">Pilih Kelas</option>
+            <?php foreach($kelasList as $k): ?>
+              <option value="<?= $k ?>" <?= (isset($edit_data['class']) && $edit_data['class'] == $k) ? 'selected' : '' ?>><?= $k ?></option>
+            <?php endforeach; ?>
+          </select>
         </div>
+
         <div>
           <label class="block mb-1">Card ID</label>
           <input name="card_id" required value="<?= htmlspecialchars($edit_data['card_id'] ?? '') ?>" class="w-full p-2 border rounded dark:bg-gray-700">
@@ -60,14 +76,11 @@ if($edit_id){
           <label class="block mb-1">Foto Profil (jpg/png/webp)</label>
           <input type="file" name="profile_pic" accept="image/*" class="block">
         </div>
+
         <?php if($edit_data): ?>
           <?php
-          $profile = $edit_data['profile_pic'];
-          if(!$profile || $profile === 'default.png'){
-              $profilePath = 'assets/img/default-avatar.png';
-          } else {
-              $profilePath = 'uploads/' . $profile;
-          }
+            $profile = $edit_data['profile_pic'];
+            $profilePath = (!$profile || $profile === 'default.png') ? 'assets/img/default-avatar.png' : 'uploads/'.$profile;
           ?>
           <div>
             <img src="<?= $profilePath ?>" alt="profile" class="w-16 h-16 rounded-full object-cover">
@@ -94,24 +107,25 @@ if($edit_id){
     </form>
   </div>
 
-  <!-- Filters -->
+  <!-- Filter -->
   <div class="flex gap-3 items-center">
-    <form method="GET" action="index.php" class="flex gap-2 items-center">
+    <form method="GET" action="index.php" class="flex flex-wrap gap-2 items-center">
       <input type="hidden" name="page" value="students">
-      <select name="kelas" class="p-2 border rounded dark:bg-gray-700">
+
+      <select name="class" class="p-2 border rounded dark:bg-gray-700">
         <option value="">Semua Kelas</option>
-        <option value="10" <?= $kelas=='10'?'selected':'' ?>>Kelas 10</option>
-        <option value="11" <?= $kelas=='11'?'selected':'' ?>>Kelas 11</option>
-        <option value="12" <?= $kelas=='12'?'selected':'' ?>>Kelas 12</option>
+        <?php foreach($kelasList as $k): ?>
+          <option value="<?= $k ?>" <?= $classFilter==$k?'selected':'' ?>><?= $k ?></option>
+        <?php endforeach; ?>
       </select>
-      <input type="text" name="sub" placeholder="Subkelas (A/B/C)" value="<?= htmlspecialchars($sub) ?>" class="p-2 border rounded dark:bg-gray-700">
-      <input type="text" name="search" placeholder="Cari nama / card id" value="<?= htmlspecialchars($search) ?>" class="p-2 border rounded dark:bg-gray-700">
+
+      <input type="text" name="search" placeholder="Cari nama / ID kartu..." value="<?= htmlspecialchars($search) ?>" class="p-2 border rounded dark:bg-gray-700">
       <button class="bg-green-600 text-white px-3 py-2 rounded">Filter</button>
       <a href="index.php?page=students" class="ml-2 text-sm text-blue-400">Reset</a>
     </form>
   </div>
 
-  <!-- Table -->
+  <!-- Tabel Data -->
   <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md overflow-x-auto">
     <h2 class="text-xl font-semibold mb-4">Daftar Siswa</h2>
     <table class="w-full text-sm">
@@ -130,25 +144,19 @@ if($edit_id){
         <?php if($res->num_rows): $no = $offset+1; ?>
           <?php while($row = $res->fetch_assoc()): ?>
             <?php
-            $profile = $row['profile_pic'];
-            if(!$profile || $profile === 'default.png'){
-                $profilePath = 'assets/img/default-avatar.png';
-            } else {
-                $profilePath = 'uploads/' . $profile;
-            }
+              $profile = $row['profile_pic'];
+              $profilePath = (!$profile || $profile === 'default.png') ? 'assets/img/default-avatar.png' : 'uploads/'.$profile;
             ?>
             <tr class="border-b border-gray-200 dark:border-gray-700">
               <td class="p-2"><?= $no++ ?></td>
-              <td class="p-2">
-                <img src="<?= $profilePath ?>" alt="" class="w-10 h-10 rounded-full object-cover">
-              </td>
+              <td class="p-2"><img src="<?= $profilePath ?>" alt="" class="w-10 h-10 rounded-full object-cover"></td>
               <td class="p-2"><?= htmlspecialchars($row['name']) ?></td>
               <td class="p-2"><?= htmlspecialchars($row['class']) ?></td>
               <td class="p-2"><?= htmlspecialchars($row['card_id']) ?></td>
               <td class="p-2"><?= htmlspecialchars($row['status']) ?></td>
               <td class="p-2">
                 <a href="index.php?page=students&edit=<?= $row['id'] ?>" class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</a>
-                <a href="action_student.php?delete=<?= $row['id'] ?>" onclick="return confirm('Hapus?')" class="bg-red-600 text-white px-2 py-1 rounded">Hapus</a>
+                <a href="action_student.php?delete=<?= $row['id'] ?>" onclick="return confirm('Hapus siswa ini?')" class="bg-red-600 text-white px-2 py-1 rounded">Hapus</a>
               </td>
             </tr>
           <?php endwhile; ?>
@@ -157,5 +165,16 @@ if($edit_id){
         <?php endif; ?>
       </tbody>
     </table>
+
+    <!-- Pagination -->
+    <div class="mt-4 flex justify-center gap-2">
+      <?php for($i=1; $i<=$totalPages; $i++): ?>
+        <a href="?page=students&p=<?= $i ?><?= $classFilter ? "&class=$classFilter" : "" ?><?= $search ? "&search=$search" : "" ?>"
+           class="px-3 py-1 rounded <?= $i==$pageNo ? 'bg-blue-600 text-white' : 'bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-200' ?>">
+           <?= $i ?>
+        </a>
+      <?php endfor; ?>
+    </div>
   </div>
 </div>
+```
