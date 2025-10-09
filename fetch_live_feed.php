@@ -1,49 +1,52 @@
 <?php
 // fetch_live_feed.php
-// Full replace: returns JSON array of recent attendance_log entries (joined with students).
-// Place at repo root: fetch_live_feed.php (replace existing).
-// This endpoint is lightweight and returns last 20 taps by default.
-
-include 'db.php';
+// Full replace: fixed SQL alias, consistent JSON structure for live polling
+include __DIR__ . '/db.php';
 date_default_timezone_set('Asia/Jakarta');
-header('Content-Type: application/json; charset=utf-8');
 
-// limit param optional
-$limit = isset($_GET['limit']) ? max(1,intval($_GET['limit'])) : 20;
+// Ambil last_id dari request (default 0)
+$last_id = isset($_GET['last_id']) ? (int)$_GET['last_id'] : 0;
 
-$sql = "
-  SELECT al.id, al.timestamp, al.card_id, al.device_id, al.schedule_status,
-         s.id AS student_id, s.name, s.class, s.profile_pic
-  FROM attendance_log al
-  LEFT JOIN students s ON s.id = al.student_id
-  ORDER BY al.timestamp DESC
-  LIMIT ?
-";
+// Query untuk ambil data absensi terbaru setelah last_id
+$sql = "SELECT 
+            al.id,
+            al.student_id,
+            al.card_id,
+            al.timestamp,
+            s.name AS student_name,
+            s.class AS student_class
+        FROM attendance_log AS al
+        LEFT JOIN students AS s ON s.id = al.student_id
+        WHERE al.id > ?
+        ORDER BY al.id ASC
+        LIMIT 50";
 
 $stmt = $conn->prepare($sql);
-if (!$stmt) {
-  echo json_encode(['success'=>false,'error'=>'Prepare failed','db_error'=>$conn->error]);
-  exit;
-}
-$stmt->bind_param('i', $limit);
+$stmt->bind_param('i', $last_id);
 $stmt->execute();
-$res = $stmt->get_result();
+$result = $stmt->get_result();
 
-$rows = [];
-while ($r = $res->fetch_assoc()) {
-  // normalize fields
-  $rows[] = [
-    'id' => (int)$r['id'],
-    'timestamp' => $r['timestamp'],
-    'card_id' => $r['card_id'],
-    'device_id' => $r['device_id'],
-    'schedule_status' => $r['schedule_status'],
-    'student_id' => $r['student_id'] !== null ? (int)$r['student_id'] : null,
-    'name' => $r['name'] ?? null,
-    'class' => $r['class'] ?? null,
-    'profile_pic' => $r['profile_pic'] ?? null
-  ];
+$entries = [];
+$new_last_id = $last_id;
+
+while ($row = $result->fetch_assoc()) {
+    $entries[] = $row;
+    if ((int)$row['id'] > $new_last_id) {
+        $new_last_id = (int)$row['id'];
+    }
 }
+
 $stmt->close();
 
-echo json_encode(['success'=>true,'records'=>$rows], JSON_UNESCAPED_UNICODE);
+// Bentuk response JSON
+$response = [
+    'success' => true,
+    'entries' => $entries,
+    'last_id' => $new_last_id,
+    'count'   => count($entries)
+];
+
+// Header JSON
+header('Content-Type: application/json; charset=utf-8');
+echo json_encode($response, JSON_PRETTY_PRINT);
+?>

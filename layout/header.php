@@ -1,4 +1,3 @@
-```php
 <?php
 // layout/header.php — versi fix toggle sidebar (nav muncul saat klik ☰)
 require_once __DIR__ . '/../db.php';
@@ -98,4 +97,3 @@ if ($res_mode) {
     setInterval(updateClock, 1000);
     updateClock();
   </script>
-```

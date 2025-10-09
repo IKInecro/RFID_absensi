@@ -1,4 +1,3 @@
-```php
 <?php
 // api/attendance.php — fixed version
 // Ensures live_feed detects registered students correctly

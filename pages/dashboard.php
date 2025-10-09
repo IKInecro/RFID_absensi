@@ -1,4 +1,3 @@
-```php
 <?php
 include 'db.php';
 date_default_timezone_set('Asia/Jakarta'); // ganti sesuai zona waktu
@@ -152,4 +151,3 @@ new Chart(ctx, {
     }
 });
 </script>
-```
