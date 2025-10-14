@@ -1,6 +1,6 @@
 <?php
 include 'db.php';
-date_default_timezone_set('Asia/Jakarta'); // ganti sesuai zona waktu
+date_default_timezone_set('Asia/Jakarta');
 
 // ===== Ambil Mode dari settings =====
 $setting = $conn->query("SELECT reg_mode, test_mode FROM settings WHERE id = 1")->fetch_assoc();
@@ -9,20 +9,15 @@ $testMode = intval($setting['test_mode']);
 
 // ===== Statistik =====
 $totalStudents = $conn->query("SELECT COUNT(*) as c FROM students WHERE status='active'")->fetch_assoc()['c'];
-
 $today = date('Y-m-d');
 $totalToday = $conn->query("
     SELECT COUNT(*) as c FROM attendance_log 
-    WHERE DATE(timestamp)='$today' 
-      AND schedule_status IN ('On Time','Late')
+    WHERE DATE(timestamp)='$today' AND schedule_status IN ('On Time','Late')
 ")->fetch_assoc()['c'];
-
 $lateToday = $conn->query("
     SELECT COUNT(*) as c FROM attendance_log 
-    WHERE DATE(timestamp)='$today' 
-      AND schedule_status='Late'
+    WHERE DATE(timestamp)='$today' AND schedule_status='Late'
 ")->fetch_assoc()['c'];
-
 $day = date('D');
 $isHoliday = $conn->query("SELECT is_holiday FROM schedules WHERE day='$day' LIMIT 1")
                  ->fetch_assoc()['is_holiday'] ?? 0;
@@ -49,28 +44,56 @@ for($i=6; $i>=0; $i--){
 }
 ?>
 
-<div class="space-y-8">
+<style>
+.dashboard-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+.stat-number {
+  font-size: 2.2rem;
+  font-weight: 700;
+}
+.card-icon {
+  font-size: 2rem;
+  opacity: 0.8;
+}
+.chart-container {
+  position: relative;
+  height: 340px;
+}
+</style>
 
-  <!-- Toggle Mode -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Register Mode -->
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-      <h2 class="text-lg font-semibold mb-3">Register Mode</h2>
+<div class="space-y-10">
+
+  <!-- Mode Switch Section -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div class="dashboard-card bg-gray-900 border border-gray-700 p-6 rounded-xl shadow-md">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold text-white">Register Mode</h2>
+        <span class="card-icon">🧭</span>
+      </div>
       <form action="action_register.php" method="POST">
         <input type="hidden" name="toggle_reg_mode" value="<?= $reg_mode ? 0 : 1 ?>">
-        <button type="submit" class="px-4 py-2 rounded <?= $reg_mode ? 'bg-red-600 text-white' : 'bg-green-600 text-white' ?>">
+        <button type="submit"
+          class="w-full py-2.5 rounded-lg text-white font-semibold
+          <?= $reg_mode ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700' ?>">
           <?= $reg_mode ? 'Matikan Register Mode' : 'Aktifkan Register Mode' ?>
         </button>
       </form>
     </div>
 
-    <!-- Test Mode -->
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-      <h2 class="text-lg font-semibold mb-3">Test Mode</h2>
+    <div class="dashboard-card bg-gray-900 border border-gray-700 p-6 rounded-xl shadow-md">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold text-white">Test Mode</h2>
+        <span class="card-icon">🧪</span>
+      </div>
       <form method="POST" action="toggle_testmode.php">
         <input type="hidden" name="new_mode" value="<?= $testMode ? 0 : 1 ?>">
         <button type="submit"
-          class="px-4 py-2 rounded font-semibold text-white
+          class="w-full py-2.5 rounded-lg font-semibold text-white
           <?= $testMode ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-gray-700 hover:bg-gray-800' ?>">
           <?= $testMode ? '🧪 Test Mode Aktif' : 'Aktifkan Test Mode' ?>
         </button>
@@ -80,30 +103,39 @@ for($i=6; $i>=0; $i--){
 
   <!-- Statistik Cards -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center">
-      <h3 class="text-lg font-semibold text-gray-600 dark:text-gray-300">Total Siswa</h3>
-      <p class="text-3xl font-bold text-blue-600 dark:text-blue-400"><?= $totalStudents ?></p>
+    <div class="dashboard-card bg-gray-900 border border-gray-700 p-6 rounded-xl text-center">
+      <div class="card-icon mb-2 text-blue-500">👨‍🎓</div>
+      <h3 class="text-gray-400 font-medium mb-1">Total Siswa</h3>
+      <p class="stat-number text-blue-400"><?= $totalStudents ?></p>
     </div>
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center">
-      <h3 class="text-lg font-semibold text-gray-600 dark:text-gray-300">Hadir Hari Ini</h3>
-      <p class="text-3xl font-bold text-green-600 dark:text-green-400"><?= $totalToday ?></p>
+
+    <div class="dashboard-card bg-gray-900 border border-gray-700 p-6 rounded-xl text-center">
+      <div class="card-icon mb-2 text-green-500">✅</div>
+      <h3 class="text-gray-400 font-medium mb-1">Hadir Hari Ini</h3>
+      <p class="stat-number text-green-400"><?= $totalToday ?></p>
     </div>
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center">
-      <h3 class="text-lg font-semibold text-gray-600 dark:text-gray-300">Terlambat Hari Ini</h3>
-      <p class="text-3xl font-bold text-red-600 dark:text-red-400"><?= $lateToday ?></p>
+
+    <div class="dashboard-card bg-gray-900 border border-gray-700 p-6 rounded-xl text-center">
+      <div class="card-icon mb-2 text-red-500">⏰</div>
+      <h3 class="text-gray-400 font-medium mb-1">Terlambat Hari Ini</h3>
+      <p class="stat-number text-red-400"><?= $lateToday ?></p>
     </div>
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md text-center">
-      <h3 class="text-lg font-semibold text-gray-600 dark:text-gray-300">Status Hari Ini</h3>
-      <p class="text-2xl font-bold <?= $isHoliday?'text-purple-600 dark:text-purple-400':'text-gray-700 dark:text-gray-200' ?>">
+
+    <div class="dashboard-card bg-gray-900 border border-gray-700 p-6 rounded-xl text-center">
+      <div class="card-icon mb-2 text-purple-500">📅</div>
+      <h3 class="text-gray-400 font-medium mb-1">Status Hari Ini</h3>
+      <p class="stat-number <?= $isHoliday?'text-purple-400':'text-gray-300' ?>">
         <?= $isHoliday ? 'Libur' : 'Aktif' ?>
       </p>
     </div>
   </div>
 
-  <!-- Grafik Absensi 7 Hari -->
-  <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md">
-    <h3 class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Absensi 7 Hari Terakhir</h3>
-    <canvas id="attendanceChart" height="100"></canvas>
+  <!-- Grafik Absensi -->
+  <div class="dashboard-card bg-gray-900 border border-gray-700 p-6 rounded-xl shadow-md">
+    <h3 class="text-xl font-semibold mb-4 text-white">Absensi 7 Hari Terakhir</h3>
+    <div class="chart-container">
+      <canvas id="attendanceChart"></canvas>
+    </div>
   </div>
 
 </div>
@@ -112,6 +144,16 @@ for($i=6; $i>=0; $i--){
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const ctx = document.getElementById('attendanceChart').getContext('2d');
+
+// Gradien untuk grafik
+const gradientOnTime = ctx.createLinearGradient(0, 0, 0, 300);
+gradientOnTime.addColorStop(0, 'rgba(59,130,246,0.6)');
+gradientOnTime.addColorStop(1, 'rgba(59,130,246,0.05)');
+
+const gradientLate = ctx.createLinearGradient(0, 0, 0, 300);
+gradientLate.addColorStop(0, 'rgba(239,68,68,0.6)');
+gradientLate.addColorStop(1, 'rgba(239,68,68,0.05)');
+
 new Chart(ctx, {
     type: 'line',
     data: {
@@ -120,33 +162,58 @@ new Chart(ctx, {
             {
                 label: 'On Time',
                 data: <?= json_encode($dataOnTime) ?>,
-                borderColor: 'rgb(37, 99, 235)',
-                backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                tension: 0.3,
-                fill: true
+                borderColor: '#3b82f6',
+                backgroundColor: gradientOnTime,
+                borderWidth: 2,
+                fill: true,
+                tension: 0.35,
+                pointBackgroundColor: '#3b82f6',
+                pointBorderColor: '#1e3a8a',
+                pointRadius: 5,
+                pointHoverRadius: 6,
             },
             {
                 label: 'Late',
                 data: <?= json_encode($dataLate) ?>,
-                borderColor: 'rgb(239, 68, 68)',
-                backgroundColor: 'rgba(239, 68, 68, 0.2)',
-                tension: 0.3,
-                fill: true
+                borderColor: '#ef4444',
+                backgroundColor: gradientLate,
+                borderWidth: 2,
+                fill: true,
+                tension: 0.35,
+                pointBackgroundColor: '#ef4444',
+                pointBorderColor: '#7f1d1d',
+                pointRadius: 5,
+                pointHoverRadius: 6,
             }
         ]
     },
     options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: {
-                labels: {
-                    color: getComputedStyle(document.documentElement).getPropertyValue('--tw-prose-body')
-                }
+                labels: { color: '#d1d5db', font: { size: 13 } }
+            },
+            tooltip: {
+                backgroundColor: '#1f2937',
+                titleColor: '#fff',
+                bodyColor: '#e5e7eb',
+                borderWidth: 1,
+                borderColor: '#374151',
+                cornerRadius: 8,
+                padding: 10
             }
         },
         scales: {
-            x: { ticks: { color: '#6b7280' } },
-            y: { ticks: { color: '#6b7280' }, beginAtZero: true }
+            x: {
+                ticks: { color: '#9ca3af' },
+                grid: { color: '#374151' }
+            },
+            y: {
+                ticks: { color: '#9ca3af' },
+                grid: { color: '#374151' },
+                beginAtZero: true
+            }
         }
     }
 });

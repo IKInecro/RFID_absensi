@@ -1,33 +1,59 @@
 <?php
+// export_attendance_csv.php
 include 'db.php';
 date_default_timezone_set('Asia/Jakarta');
 
-// === FORMAT NAMA FILE ===
+// ===== Nama File Dinamis =====
 $hari = ['Sun'=>'Min','Mon'=>'Sen','Tue'=>'Sel','Wed'=>'Rab','Thu'=>'Kam','Fri'=>'Jum','Sat'=>'Sab'];
 $filename = 'ABSENSI_' . date('d-') . $hari[date('D')] . '-' . date('m-Y') . '.csv';
 
 header('Content-Type: text/csv; charset=utf-8');
 header('Content-Disposition: attachment; filename="' . $filename . '"');
 
-// === AMBIL FILTER ===
-$from = $_GET['from'] ?? '';
-$to = $_GET['to'] ?? '';
-$name = $_GET['name'] ?? '';
-$class = $_GET['class'] ?? '';
-$card = $_GET['card'] ?? '';
-$device = $_GET['device'] ?? '';
-$statusFilter = $_GET['status'] ?? '';
+// ===== Input Filter =====
+$from   = trim($_GET['from'] ?? '');
+$to     = trim($_GET['to'] ?? '');
+$name   = trim($_GET['name'] ?? '');
+$class  = trim($_GET['class'] ?? '');
+$card   = trim($_GET['card'] ?? '');
+$device = trim($_GET['device'] ?? '');
+$statusFilter = trim($_GET['status'] ?? '');
 
-$where = [];
-if ($from && $to) $where[] = "DATE(al.timestamp) BETWEEN '$from' AND '$to'";
-if ($name) $where[] = "s.name LIKE '%$name%'";
-if ($class) $where[] = "s.class LIKE '%$class%'";
-if ($card) $where[] = "al.card_id LIKE '%$card%'";
-if ($device) $where[] = "al.device_id LIKE '%$device%'";
-$whereSql = $where ? "WHERE " . implode(" AND ", $where) : "";
+// ===== Build WHERE safely =====
+$whereParts = [];
+$types = '';
+$params = [];
 
-// === AMBIL DATA ABSENSI ===
-$query = "
+// validasi tanggal
+function valid_date($d) {
+  return DateTime::createFromFormat('Y-m-d', $d) && DateTime::createFromFormat('Y-m-d', $d)->format('Y-m-d') === $d;
+}
+
+if (valid_date($from) && valid_date($to)) {
+  $whereParts[] = "DATE(al.timestamp) BETWEEN ? AND ?";
+  $types .= 'ss';
+  $params[] = $from;
+  $params[] = $to;
+}
+
+$filters = [
+  ['s.name', $name],
+  ['s.class', $class],
+  ['al.card_id', $card],
+  ['al.device_id', $device],
+];
+foreach ($filters as [$col, $val]) {
+  if ($val !== '') {
+    $whereParts[] = "$col LIKE ?";
+    $types .= 's';
+    $params[] = "%$val%";
+  }
+}
+
+$whereSql = $whereParts ? "WHERE " . implode(" AND ", $whereParts) : "";
+
+// ===== Query Data =====
+$sql = "
   SELECT 
     al.timestamp, 
     al.schedule_status, 
@@ -35,27 +61,31 @@ $query = "
     s.class AS student_class, 
     al.card_id, 
     al.device_id
-  FROM attendance_log al
-  LEFT JOIN students s ON s.id = al.student_id
+  FROM attendance_log AS al
+  LEFT JOIN students AS s ON s.id = al.student_id
   $whereSql
   ORDER BY al.timestamp DESC
 ";
 
-$res = $conn->query($query);
-if (!$res) {
-  die('Query Error: ' . $conn->error);
+$stmt = $conn->prepare($sql);
+if ($types !== '') {
+  $bind = [$types];
+  foreach ($params as &$p) $bind[] = &$p;
+  call_user_func_array([$stmt, 'bind_param'], $bind);
 }
+$stmt->execute();
+$res = $stmt->get_result();
 
-// === AMBIL JADWAL HARI INI ===
+// ===== Ambil Jadwal Hari Ini (buat status fallback) =====
 $day = date('D');
 $schedule = $conn->query("SELECT * FROM schedules WHERE day='$day' LIMIT 1")->fetch_assoc();
 $time_in = $schedule['time_in'] ?? null;
 $time_out = $schedule['time_out'] ?? null;
 $grace = $schedule['grace_period'] ?? 0;
-$grace_limit = ($time_in) ? date('H:i:s', strtotime($time_in . " +$grace minutes")) : null;
+$grace_limit = $time_in ? date('H:i:s', strtotime($time_in . " +$grace minutes")) : null;
 $isHoliday = $schedule['is_holiday'] ?? 0;
 
-// === OUTPUT CSV ===
+// ===== Output CSV =====
 $output = fopen('php://output', 'w');
 fputcsv($output, ['Tanggal/Waktu', 'Nama', 'Kelas', 'Card ID', 'Device', 'Status Jadwal']);
 
@@ -64,7 +94,7 @@ while ($row = $res->fetch_assoc()) {
   $jam = date('H:i:s', strtotime($timestamp));
   $status = trim($row['schedule_status'] ?? '');
 
-  // Kalkulasi ulang status kalau kosong
+  // fallback status kalkulasi ulang
   if ($status === '') {
     if ($isHoliday) {
       $status = 'Libur';
@@ -78,15 +108,15 @@ while ($row = $res->fetch_assoc()) {
     }
   }
 
-  // Filter kalau user pilih status tertentu
+  // jika ada filter status aktif
   if ($statusFilter && $status !== $statusFilter) continue;
 
   fputcsv($output, [
     $timestamp,
-    $row['student_name'],
-    $row['student_class'],
-    $row['card_id'],
-    $row['device_id'],
+    $row['student_name'] ?: '-',
+    $row['student_class'] ?: '-',
+    $row['card_id'] ?: '-',
+    $row['device_id'] ?: '-',
     $status
   ]);
 }

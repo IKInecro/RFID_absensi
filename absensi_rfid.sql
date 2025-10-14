@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 07, 2025 at 03:42 PM
+-- Generation Time: Oct 09, 2025 at 10:30 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,11 +43,15 @@ CREATE TABLE `attendance_log` (
 --
 
 INSERT INTO `attendance_log` (`id`, `student_id`, `card_id`, `device_id`, `timestamp`, `status`, `schedule_status`, `location`) VALUES
-(89, 21, 'E34FCBEE', 'ESP8266-1', '2025-10-07 16:50:06', 'On Time', '', NULL),
-(90, 25, 'F34DCBEE', 'ESP8266-1', '2025-10-07 17:11:40', 'On Time', '', NULL),
-(91, 23, '534BCEEE', 'ESP8266-1', '2025-10-07 17:14:40', 'On Time', '', NULL),
-(92, 12, '038FD9EE', 'ESP8266-1', '2025-10-07 17:15:14', 'On Time', '', NULL),
-(93, 2, '6E283206', 'ESP8266-1', '2025-10-07 20:22:29', 'On Time', '', NULL);
+(93, 2, '6E283206', 'ESP8266-1', '2025-10-07 20:22:29', 'On Time', '', NULL),
+(94, 26, '038FD9EE', 'ESP8266-1', '2025-10-07 22:22:44', 'On Time', '', NULL),
+(95, 27, 'D056675F', 'ESP8266-1', '2025-10-07 22:33:27', 'On Time', '', NULL),
+(97, 29, 'E34FCBEE', 'ESP8266-1', '2025-10-07 22:40:05', 'On Time', '', NULL),
+(99, 28, '534BCEEE', 'ESP8266-1', '2025-10-07 22:40:10', 'On Time', '', NULL),
+(103, 33, 'F34DCBEE', 'ESP8266-1', '2025-10-08 22:49:15', 'On Time', '', NULL),
+(104, 34, 'A345CAEE', 'ESP8266-1', '2025-10-08 22:54:44', 'On Time', '', NULL),
+(105, 34, 'A345CAEE', 'ESP8266-1', '2025-10-09 00:52:44', 'On Time', 'On Time', NULL),
+(106, 27, 'D056675F', 'ESP8266-1', '2025-10-09 00:53:04', 'On Time', 'On Time', NULL);
 
 -- --------------------------------------------------------
 
@@ -94,7 +98,7 @@ CREATE TABLE `settings` (
 --
 
 INSERT INTO `settings` (`id`, `reg_mode`, `test_mode`) VALUES
-(1, 0, 1);
+(1, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -118,10 +122,12 @@ CREATE TABLE `students` (
 
 INSERT INTO `students` (`id`, `name`, `class`, `card_id`, `status`, `created_at`, `profile_pic`) VALUES
 (2, 'MARCO', 'XII IPA 2', '6E283206', 'active', '2025-10-01 08:08:28', 'p_68dcfb9ed4714.jpg'),
-(12, 'NURUL ZAHRA', 'XII IPA 2', '038FD9EE', 'active', '2025-10-06 15:39:25', 'default.png'),
-(21, 'EKA SRI MULYANI', 'XII IPA 2', 'E34FCBEE', 'active', '2025-10-06 16:42:36', 'default.png'),
-(23, 'DAMAR MAYA', 'XII IPA 2', '534BCEEE', 'active', '2025-10-06 16:42:46', 'default.png'),
-(25, 'MUHTADIN', 'XII IPA 2', 'F34DCBEE', 'active', '2025-10-06 16:42:50', 'default.png');
+(26, 'NURUL ZAHRA', 'XII IPA 2', '038FD9EE', 'active', '2025-10-07 15:11:38', 'default.png'),
+(27, 'MUHTADIN', 'XII IPA 2', 'D056675F', 'active', '2025-10-07 15:25:34', 'default.png'),
+(28, 'HAGIA', 'XII IPA 2', '534BCEEE', 'active', '2025-10-07 15:37:31', 'default.png'),
+(29, 'EKA SRI MULYANI', 'XII IPA 2', 'E34FCBEE', 'active', '2025-10-07 15:37:32', 'default.png'),
+(33, 'DAMAR MAYA', 'XII IPA 2', 'F34DCBEE', 'active', '2025-10-08 15:48:36', 'default.png'),
+(34, 'SUCI DEWI AMANDA', 'XII IPA 2', 'A345CAEE', 'active', '2025-10-08 15:54:08', 'default.png');
 
 --
 -- Indexes for dumped tables
@@ -161,7 +167,7 @@ ALTER TABLE `students`
 -- AUTO_INCREMENT for table `attendance_log`
 --
 ALTER TABLE `attendance_log`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=94;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
 
 --
 -- AUTO_INCREMENT for table `schedules`
@@ -179,7 +185,7 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- Constraints for dumped tables
