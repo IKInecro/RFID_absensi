@@ -1,42 +1,60 @@
 <?php
 // layout/footer.php
 ?>
-  </main>
+</main>
+</div> <!-- End Main Content Wrapper -->
 
-  <script>
-    // WIB Clock
+<!-- Theme Toggle Script -->
+<script>
+    const themeToggle = document.getElementById('themeToggle');
+    const html = document.documentElement;
+    const themeSun = document.getElementById('themeSun');
+    const themeMoon = document.getElementById('themeMoon');
+
+    // Check local storage or system preference
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        html.classList.add('dark');
+    } else {
+        html.classList.remove('dark');
+    }
+
+    // Toggle logic
+    themeToggle.addEventListener('click', () => {
+        html.classList.toggle('dark');
+        if (html.classList.contains('dark')) {
+            localStorage.theme = 'dark';
+        } else {
+            localStorage.theme = 'light';
+        }
+    });
+
+    // Mobile Sidebar Toggle
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+
+    function toggleSidebar() {
+        sidebar.classList.toggle('-translate-x-full');
+        sidebarOverlay.classList.toggle('hidden');
+    }
+
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+    }
+
+    // Clock Logic
     function updateClock() {
-      let now = new Date();
-      let utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-      let wib = new Date(utc + (3600000 * 7));
-      let jam = String(wib.getHours()).padStart(2, '0');
-      let menit = String(wib.getMinutes()).padStart(2, '0');
-      let detik = String(wib.getSeconds()).padStart(2, '0');
-      document.getElementById('wibClock').innerText = jam+":"+menit+":"+detik+" WIB";
+        const clockEl = document.getElementById('clock');
+        if (clockEl) {
+            const now = new Date();
+            const time = now.toLocaleTimeString('id-ID', { hour12: false });
+            clockEl.textContent = time + ' WIB';
+        }
     }
     setInterval(updateClock, 1000);
     updateClock();
-
-    // Sidebar toggle
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    document.getElementById('btnToggle').addEventListener('click', () => {
-      sidebar.classList.toggle('open');
-      overlay.classList.toggle('show');
-    });
-    overlay.addEventListener('click', () => {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('show');
-    });
-
-    // Active nav
-    const params = new URLSearchParams(window.location.search);
-    const page = params.get('page') || 'dashboard';
-    document.querySelectorAll('.nav-link').forEach(link => {
-      if (link.href.includes(`page=${page}`)) {
-        link.classList.add('active');
-      }
-    });
-  </script>
+</script>
 </body>
+
 </html>

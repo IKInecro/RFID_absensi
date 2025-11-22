@@ -1,118 +1,137 @@
 <?php
-// pages/schedule.php
-// Full replace: modern dark UI, preserve add/edit/delete schedule functionality.
-// Place at pages/schedule.php
-
+// pages/schedule.php — redesigned: clean list, modern forms, SVG icons
 include 'db.php';
-date_default_timezone_set('Asia/Jakarta');
 
-// fetch schedules
-$res = $conn->query("SELECT * FROM schedules ORDER BY FIELD(day,'Mon','Tue','Wed','Thu','Fri','Sat','Sun'), time_in ASC");
-
-// edit support
-$edit_id = isset($_GET['edit']) ? (int)$_GET['edit'] : 0;
-$edit_data = null;
-if ($edit_id) {
-    $r = $conn->query("SELECT * FROM schedules WHERE id={$edit_id} LIMIT 1");
-    if ($r && $r->num_rows) $edit_data = $r->fetch_assoc();
+// Handle Add/Edit/Delete
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  if (isset($_POST['add_schedule'])) {
+    $day = $_POST['day'];
+    $in = $_POST['time_in'];
+    $out = $_POST['time_out'];
+    $holiday = isset($_POST['is_holiday']) ? 1 : 0;
+    $conn->query("INSERT INTO schedules (day, time_in, time_out, is_holiday) VALUES ('$day', '$in', '$out', $holiday)");
+  } elseif (isset($_POST['edit_schedule'])) {
+    $id = $_POST['id'];
+    $day = $_POST['day'];
+    $in = $_POST['time_in'];
+    $out = $_POST['time_out'];
+    $holiday = isset($_POST['is_holiday']) ? 1 : 0;
+    $conn->query("UPDATE schedules SET day='$day', time_in='$in', time_out='$out', is_holiday=$holiday WHERE id=$id");
+  } elseif (isset($_POST['delete_schedule'])) {
+    $id = $_POST['id'];
+    $conn->query("DELETE FROM schedules WHERE id=$id");
+  }
+  header("Location: index.php?page=schedule");
+  exit;
 }
 
-// days list (user-friendly but store in DB likely 3-letter D format)
-$days = ['Mon'=>'Mon','Tue'=>'Tue','Wed'=>'Wed','Thu'=>'Thu','Fri'=>'Fri','Sat'=>'Sat','Sun'=>'Sun'];
-
-function esc($s){ return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8'); }
+// Fetch Schedules
+$schedules = $conn->query("SELECT * FROM schedules ORDER BY FIELD(day, 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun')");
 ?>
-<!doctype html>
-<html lang="id" data-theme="dark">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Schedule — Jadwal</title>
-<style>
-:root{--bg:#071026;--panel:#071a2b;--muted:#9bb0c9;--text:#e6f0fb;--accent:#0D47A1}
-html,body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial;margin:0;padding:0}
-.container{max-width:1100px;margin:28px auto;padding:18px}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.title{font-size:20px;font-weight:700}
-.card{background:var(--panel);border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.03)}
-.form-inline{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-input[type="text"], input[type="time"], select { background:#0b1624;color:var(--text);border:1px solid rgba(255,255,255,0.04);padding:8px;border-radius:8px }
-.btn{background:var(--accent);color:white;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
-.list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border:1px solid rgba(255,255,255,0.02);transition:transform .12s ease, box-shadow .12s ease}
-.item:hover{transform:translateY(-6px);box-shadow:0 14px 40px rgba(6,20,40,.6)}
-.meta{display:flex;flex-direction:column}
-.day{font-weight:700}
-.small{color:var(--muted)}
-.actions{display:flex;gap:8px}
-.icon{background:rgba(255,255,255,0.03);padding:6px;border-radius:8px;color:var(--text)}
-</style>
-</head>
-<body>
-<div class="container">
-  <div class="header">
+
+<div class="space-y-6 animate-fade-in">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div>
-      <div class="title">Jadwal</div>
-      <div class="small">Atur jam masuk & pulang — interface modern gelap</div>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Jadwal Absensi</h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-1">Atur jam masuk dan pulang serta hari libur.</p>
     </div>
-    <div>
-      <a href="index.php?page=schedule" class="btn">Segarkan</a>
-    </div>
+    <button onclick="openModal('addModal')"
+      class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-blue-500/30 active:scale-95">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Tambah Jadwal
+    </button>
   </div>
 
-  <div class="card">
-    <h3 style="margin:0 0 8px 0"><?= $edit_data ? 'Edit Jadwal' : 'Tambah Jadwal' ?></h3>
-    <form action="action_schedule.php" method="post" class="form-inline">
-      <input type="hidden" name="id" value="<?= esc($edit_data['id'] ?? '') ?>">
-      <div>
-        <label class="small">Hari</label><br>
-        <select name="day" required>
-          <?php foreach ($days as $k=>$v): ?>
-            <option value="<?= esc($k) ?>" <?= (isset($edit_data['day']) && $edit_data['day']==$k)?'selected':'' ?>><?= esc($v) ?></option>
-          <?php endforeach; ?>
-        </select>
+  <!-- Schedule List -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <?php while ($s = $schedules->fetch_assoc()): ?>
+      <div
+        class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+        <?php if ($s['is_holiday']): ?>
+          <div class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">LIBUR</div>
+        <?php endif; ?>
+
+        <div class="flex justify-between items-start mb-4">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold
+              <?= $s['is_holiday'] ? 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400' : 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' ?>">
+              <?= substr($s['day'], 0, 3) ?>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-gray-900 dark:text-white"><?= $s['day'] ?></h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400">
+                <?= $s['is_holiday'] ? 'Tidak ada absensi' : 'Jam Operasional' ?>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <?php if (!$s['is_holiday']): ?>
+          <div class="space-y-3 mb-6">
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+              <span class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                Masuk
+              </span>
+              <span
+                class="font-mono font-bold text-gray-900 dark:text-white"><?= date('H:i', strtotime($s['time_in'])) ?></span>
+            </div>
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+              <span class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Pulang
+              </span>
+              <span
+                class="font-mono font-bold text-gray-900 dark:text-white"><?= date('H:i', strtotime($s['time_out'])) ?></span>
+            </div>
+          </div>
+        <?php else: ?>
+          <div
+            class="h-24 flex items-center justify-center text-gray-400 dark:text-gray-500 mb-6 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-dashed border-gray-200 dark:border-gray-600">
+            <span class="flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+              </svg>
+              Libur
+            </span>
+          </div>
+        <?php endif; ?>
+
+        <div class="flex gap-2 pt-4 border-t border-gray-100 dark:border-gray-700">
+          <button onclick="editSchedule(<?= htmlspecialchars(json_encode($s)) ?>)"
+            class="flex-1 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Edit
+          </button>
+          <form method="POST" onsubmit="return confirm('Hapus jadwal ini?');" class="flex-1">
+            <input type="hidden" name="delete_schedule" value="1">
+            <input type="hidden" name="id" value="<?= $s['id'] ?>">
+            <button type="submit"
+              class="w-full py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Hapus
+            </button>
+          </form>
+        </div>
       </div>
-      <div>
-        <label class="small">Jam Masuk</label><br>
-        <input type="time" name="time_in" required value="<?= esc($edit_data['time_in'] ?? '') ?>">
-      </div>
-      <div>
-        <label class="small">Jam Pulang</label><br>
-        <input type="time" name="time_out" required value="<?= esc($edit_data['time_out'] ?? '') ?>">
-      </div>
-      <div>
-        <label class="small">Toleransi (menit)</label><br>
-        <input type="text" name="grace_period" value="<?= esc($edit_data['grace_period'] ?? '0') ?>">
-      </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <label class="small">Libur</label>
-        <select name="is_holiday">
-          <option value="0" <?= (isset($edit_data['is_holiday']) && intval($edit_data['is_holiday'])===1)?'':'selected' ?>>No</option>
-          <option value="1" <?= (isset($edit_data['is_holiday']) && intval($edit_data['is_holiday'])===1)?'selected':'' ?>>Yes</option>
-        </select>
-      </div>
-      <div style="margin-left:auto">
-        <button type="submit" name="<?= $edit_data ? 'update' : 'create' ?>" class="btn"><?= $edit_data ? 'Update' : 'Simpan' ?></button>
-        <?php if ($edit_data): ?><a href="index.php?page=schedule" class="btn btn.ghost">Batal</a><?php endif; ?>
-      </div>
-    </form>
+    <?php endwhile; ?>
   </div>
 
-  <div class="list">
-    <?php if ($res && $res->num_rows): while ($r = $res->fetch_assoc()): ?>
-      <div class="item">
-        <div class="meta">
-          <div class="day"><?= esc($r['day']) ?> • <?= esc($r['time_in']) ?> - <?= esc($r['time_out']) ?></div>
-          <div class="small">Toleransi: <?= esc($r['grace_period']) ?> menit • <?= intval($r['is_holiday']) ? 'Libur' : 'Tidak Libur' ?></div>
-        </div>
-        <div class="actions">
-          <a href="index.php?page=schedule&edit=<?= intval($r['id']) ?>" class="icon">✏️</a>
-          <a href="action_schedule.php?delete=<?= intval($r['id']) ?>" onclick="return confirm('Hapus jadwal ini?')" class="icon">🗑️</a>
-        </div>
-      </div>
-    <?php endwhile; else: ?>
-      <div class="card placeholder">Belum ada jadwal</div>
-    <?php endif; ?>
-  </div>
 </div>
-</body>
-</html>

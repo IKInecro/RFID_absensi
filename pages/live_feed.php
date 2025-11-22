@@ -1,6 +1,6 @@
 <?php
 // pages/live_feed.php
-// FULL REPLACE — versi UI modern dengan foto profil & animasi halus
+// FULL REPLACE — modern UI with profile pics & smooth animations
 include __DIR__ . '/../db.php';
 date_default_timezone_set('Asia/Jakarta');
 
@@ -33,154 +33,260 @@ $sql = "SELECT
 if ($res = $conn->query($sql)) {
   while ($r = $res->fetch_assoc()) {
     $initial_entries[] = $r;
-    if ((int)$r['id'] > $last_id) $last_id = (int)$r['id'];
+    if ((int) $r['id'] > $last_id)
+      $last_id = (int) $r['id'];
   }
   $res->free();
 }
 
-function h($s) {
-  return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
+function h($s)
+{
+  return htmlspecialchars((string) $s, ENT_QUOTES, 'UTF-8');
 }
 ?>
-<!doctype html>
-<html lang="id">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Live Feed Absensi</title>
-<style>
-:root{
-  --bg:#0a1120; --panel:#111827; --text:#e6eef8; --muted:#9bb0c9;
-  --success:#16a34a; --danger:#ef4444; --accent:#06b6d4;
-}
-html,body{
-  background:var(--bg); color:var(--text);
-  font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
-  margin:0; padding:0;
-}
-.wrap{max-width:1100px;margin:28px auto;padding:18px}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.title{font-size:22px;font-weight:700}
-.small{font-size:13px;color:var(--muted)}
-.badge{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.05);font-size:13px;color:var(--muted)}
-.status{display:flex;gap:10px;align-items:center}
-.card{background:var(--panel);border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 2px 5px rgba(0,0,0,0.2)}
-.feed-wrap{max-height:600px;overflow-y:auto;scroll-behavior:smooth;margin-top:10px;padding-right:6px;}
-.feed{display:flex;flex-direction:column;gap:10px;}
-.item{
-  display:flex;align-items:center;gap:14px;
-  padding:12px 14px;
-  border-radius:10px;
-  background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
-  border:1px solid rgba(255,255,255,0.03);
-  transition:background 0.2s ease,transform 0.2s ease;
-}
-.item:hover{background:rgba(255,255,255,0.04);transform:translateY(-2px);}
-.avatar{
-  width:60px;height:60px;border-radius:50%;
-  overflow:hidden;flex-shrink:0;
-  background:rgba(255,255,255,0.05);
-  display:flex;align-items:center;justify-content:center;
-  color:var(--muted);font-weight:700;font-size:20px;
-}
-.avatar img{width:100%;height:100%;object-fit:cover;}
-.info{flex:1;min-width:0;}
-.name{font-weight:700;font-size:15px;margin-bottom:2px;}
-.meta{font-size:13px;color:var(--muted);}
-.card-id{font-size:13px;color:var(--muted);}
-.placeholder{padding:40px;text-align:center;color:var(--muted);}
-.flash{animation:flashIn 0.7s ease;}
-@keyframes flashIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="header">
+
+<div class="space-y-6 animate-fade-in">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div>
-      <div class="title">Live Feed Absensi</div>
-      <div class="small">Realtime update data absensi siswa</div>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Live Feed Absensi</h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-1">Realtime update data absensi siswa.</p>
     </div>
-    <div class="status">
-      <div class="badge">Reg Mode: <?= $reg_mode ? 'ON' : 'OFF' ?></div>
-      <div class="badge">Test Mode: <?= $test_mode ? 'ON' : 'OFF' ?></div>
+    <div class="flex gap-3">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight flex items-center gap-3">
+        <span class="relative flex h-4 w-4">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500"></span>
+        </span>
+        Live Feed
+      </h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-1">Memantau aktivitas absensi secara real-time.</p>
+    </div>
+    
+    <div class="flex items-center gap-3 bg-white dark:bg-gray-800 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div class="text-xs font-mono text-gray-500 dark:text-gray-400">
+        LAST ID: <span id="lastId" class="font-bold text-blue-600 dark:text-blue-400"><?= $last_id ?></span>
+      </div>
     </div>
   </div>
 
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-      <div style="font-weight:700">Aktivitas Terbaru</div>
-      <div class="small">Last ID: <span id="lastId"><?= $last_id ?></span></div>
+  <!-- Feed List -->
+  <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl shadow-sm overflow-hidden min-h-[500px] flex flex-col">
+    <div class="p-6 border-b border-gray-100 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-xl sticky top-0 z-10">
+      <h2 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+        Aktivitas Terbaru
+      </h2>
     </div>
-
-    <div class="feed-wrap">
-      <div id="feed" class="feed">
-        <?php if (empty($initial_entries)): ?>
-          <div class="placeholder">Belum ada data absensi.</div>
-        <?php else: ?>
-          <?php foreach ($initial_entries as $e): ?>
-            <div class="item" data-entry-id="<?= (int)$e['id'] ?>">
-              <div class="avatar">
-                <?php if (!empty($e['profile_pic']) && file_exists(__DIR__."/../uploads/{$e['profile_pic']}")): ?>
-                  <img src="../uploads/<?= h($e['profile_pic']) ?>" onerror="this.src='../assets/img/default-avatar.png'">
+    
+    <div id="feed" class="flex-1 p-6 space-y-4 overflow-y-auto max-h-[600px] scroll-smooth">
+      <?php if (empty($initial_data)): ?>
+        <div class="flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-500">
+          <svg class="w-16 h-16 mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p>Belum ada aktivitas hari ini.</p>
+        </div>
+      <?php else: ?>
+        <?php foreach ($initial_data as $d): ?>
+          <div class="flex items-center gap-5 p-4 rounded-2xl bg-white dark:bg-gray-700/30 border border-gray-100 dark:border-gray-700/50 hover:shadow-lg hover:scale-[1.01] transition-all duration-300 group" data-entry-id="<?= $d['id'] ?>">
+            <!-- Avatar -->
+            <div class="flex-shrink-0 relative">
+              <div class="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-600 shadow-sm ring-2 ring-white dark:ring-gray-700 group-hover:ring-blue-400 dark:group-hover:ring-blue-500 transition-all">
+                <?php if ($d['profile_pic']): ?>
+                  <img src="uploads/<?= urlencode($d['profile_pic']) ?>" class="w-full h-full object-cover">
                 <?php else: ?>
-                  <?= strtoupper(substr(h($e['student_name'] ?? ''),0,1)) ?: '—' ?>
+                  <div class="w-full h-full flex items-center justify-center text-xl font-bold text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800">
+                    <?= strtoupper(substr($d['student_name'] ?? '?', 0, 1)) ?>
+                  </div>
                 <?php endif; ?>
               </div>
-              <div class="info">
-                <div class="name"><?= h($e['student_name'] ?: 'Card: '.$e['card_id']) ?></div>
-                <div class="meta">
-                  ID: <?= (int)$e['student_id'] ?> • Kelas: <?= h($e['student_class'] ?: '-') ?> • Waktu: <?= h($e['timestamp']) ?>
-                </div>
+              <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full flex items-center justify-center">
+                <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
               </div>
-              <div class="card-id"><?= h($e['card_id']) ?></div>
             </div>
-          <?php endforeach; ?>
-        <?php endif; ?>
-      </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <div class="flex justify-between items-start mb-1">
+                <h3 class="text-base font-bold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <?= htmlspecialchars($d['student_name'] ?: 'Unknown Card') ?>
+                </h3>
+                <span class="text-xs font-mono font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-lg">
+                  <?= $d['timestamp'] ?>
+                </span>
+              </div>
+              
+              <div class="flex items-center gap-3 text-sm">
+                <span class="font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-md">
+                  <?= htmlspecialchars($d['student_class'] ?: 'N/A') ?>
+                </span>
+                <span class="text-gray-300 dark:text-gray-600">|</span>
+                <span class="text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
+                  <?= htmlspecialchars($d['card_id']) ?>
+                </span>
+              </div>
+            </div>
+          </div>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </div>
   </div>
 </div>
 
+<style>
+@keyframes slideDownFade {
+  from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-slide-down {
+  animation: slideDownFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+</style>
+
 <script>
+// Audio Context for Beeps
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playBeep() {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  
+  // Pleasant "ding" sound
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+  gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+  
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.5);
+}
+
 (() => {
   const API_UPDATES = 'api/updates.php?mode=live';
   let lastId = parseInt(document.getElementById('lastId').textContent || '0');
   const feedEl = document.getElementById('feed');
   const lastIdEl = document.getElementById('lastId');
+  
+  // Pop-up Elements
+  const popupOverlay = document.getElementById('popupOverlay');
+  const popupCard = document.getElementById('popupCard');
+  const popupImg = document.getElementById('popupImg');
+  const popupName = document.getElementById('popupName');
+  const popupClass = document.getElementById('popupClass');
+  const popupTime = document.getElementById('popupTime');
+  const popupStatus = document.getElementById('popupStatus');
+  
+  let popupTimeout;
+
+  function showPopup(e) {
+    // Populate data
+    popupName.textContent = e.student_name || 'Unknown Card';
+    popupClass.textContent = e.student_class || 'N/A';
+    popupTime.textContent = e.timestamp || new Date().toLocaleTimeString();
+    popupStatus.textContent = e.status || 'Hadir';
+    
+    if (e.profile_pic) {
+      popupImg.src = `uploads/${encodeURIComponent(e.profile_pic)}`;
+    } else {
+      // Generate initial avatar if no image
+      // For simplicity just use default, or could generate a canvas
+      popupImg.src = 'assets/img/default-avatar.png';
+    }
+
+    // Show
+    popupOverlay.classList.remove('pointer-events-none', 'opacity-0');
+    popupCard.classList.remove('scale-90');
+    popupCard.classList.add('scale-100');
+
+    // Hide after 3s
+    clearTimeout(popupTimeout);
+    popupTimeout = setTimeout(() => {
+      popupOverlay.classList.add('opacity-0', 'pointer-events-none');
+      popupCard.classList.remove('scale-100');
+      popupCard.classList.add('scale-90');
+    }, 3000);
+  }
 
   function createEntry(e) {
     const div = document.createElement('div');
-    div.className = 'item flash';
+    div.className = 'flex items-center gap-5 p-4 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 hover:shadow-lg hover:scale-[1.01] transition-all duration-300 group animate-slide-down';
     div.dataset.entryId = e.id;
 
-    const avatar = document.createElement('div');
-    avatar.className = 'avatar';
+    // Avatar
+    const avatarContainer = document.createElement('div');
+    avatarContainer.className = 'flex-shrink-0 relative';
+    
+    let avatarContent = '';
     if (e.profile_pic) {
-      avatar.innerHTML = `<img src="../uploads/${encodeURIComponent(e.profile_pic)}" onerror="this.src='../assets/img/default-avatar.png'">`;
+      avatarContent = `<img src="uploads/${encodeURIComponent(e.profile_pic)}" class="w-full h-full object-cover">`;
     } else {
-      avatar.textContent = e.student_name ? e.student_name.charAt(0).toUpperCase() : '—';
+      const initial = e.student_name ? e.student_name.charAt(0).toUpperCase() : '—';
+      avatarContent = `<div class="w-full h-full flex items-center justify-center text-xl font-bold text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800">${initial}</div>`;
     }
-
-    const info = document.createElement('div');
-    info.className = 'info';
-    info.innerHTML = `
-      <div class="name">${e.student_name || ('Card: ' + e.card_id)}</div>
-      <div class="meta">ID: ${e.student_id || '-'} • Kelas: ${e.student_class || '-'} • Waktu: ${e.timestamp || '-'}</div>
+    
+    avatarContainer.innerHTML = `
+      <div class="w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-600 shadow-sm ring-2 ring-blue-400 dark:ring-blue-500">
+        ${avatarContent}
+      </div>
+      <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full flex items-center justify-center">
+        <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+      </div>
     `;
 
-    const cardid = document.createElement('div');
-    cardid.className = 'card-id';
-    cardid.textContent = e.card_id || '-';
+    // Content
+    const content = document.createElement('div');
+    content.className = 'flex-1 min-w-0';
+    content.innerHTML = `
+      <div class="flex justify-between items-start mb-1">
+        <h3 class="text-base font-bold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+          ${e.student_name || ('Card: ' + e.card_id)}
+        </h3>
+        <span class="text-xs font-mono font-medium text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-800 px-2 py-1 rounded-lg">
+          ${e.timestamp || '-'}
+        </span>
+      </div>
+      
+      <div class="flex items-center gap-3 text-sm">
+        <span class="font-medium text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded-md">
+          ${e.student_class || 'N/A'}
+        </span>
+        <span class="text-gray-300 dark:text-gray-600">|</span>
+        <span class="text-gray-500 dark:text-gray-400 flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
+          ${e.card_id || '-'}
+        </span>
+      </div>
+    `;
 
-    div.append(avatar, info, cardid);
+    div.append(avatarContainer, content);
     return div;
   }
 
   function prependEntry(e) {
-    if (feedEl.querySelector('.placeholder')) feedEl.innerHTML = '';
+    // Remove placeholder if exists
+    const placeholder = feedEl.querySelector('.flex.flex-col.items-center');
+    if (placeholder) placeholder.remove();
+
     const node = createEntry(e);
     feedEl.prepend(node);
-    while (feedEl.children.length > 80) feedEl.removeChild(feedEl.lastChild);
+    
+    // Play sound
+    playBeep();
+    
+    // Show Pop-up
+    showPopup(e);
+    
+    // Remove highlight class after animation
+    setTimeout(() => {
+        node.classList.remove('bg-blue-50', 'dark:bg-blue-900/20', 'border-blue-100', 'dark:border-blue-800');
+        node.classList.add('bg-white', 'dark:bg-gray-700/30', 'border-gray-100', 'dark:border-gray-700/50');
+    }, 2000);
+
+    while (feedEl.children.length > 50) feedEl.removeChild(feedEl.lastChild);
   }
 
   async function poll() {
@@ -198,15 +304,13 @@ html,body{
           }
         });
       }
-      setTimeout(poll, 250);
+      setTimeout(poll, 1000); // Poll every 1s
     } catch (err) {
       console.error('Live feed error:', err);
-      setTimeout(poll, 2000);
+      setTimeout(poll, 3000);
     }
   }
 
   document.addEventListener('DOMContentLoaded', poll);
 })();
 </script>
-</body>
-</html>
