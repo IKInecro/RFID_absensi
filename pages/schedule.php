@@ -36,13 +36,15 @@ $schedules = $conn->query("SELECT * FROM schedules ORDER BY FIELD(day, 'Mon', 'T
       <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Jadwal Absensi</h1>
       <p class="text-gray-500 dark:text-gray-400 mt-1">Atur jam masuk dan pulang serta hari libur.</p>
     </div>
-    <button onclick="openModal('addModal')"
-      class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-blue-500/30 active:scale-95">
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-      </svg>
-      Tambah Jadwal
-    </button>
+    <?php if ($role === 'admin'): ?>
+      <button onclick="openAddModal()"
+        class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-blue-500/30 active:scale-95">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Tambah Jadwal
+      </button>
+    <?php endif; ?>
   </div>
 
   <!-- Schedule List -->
@@ -108,30 +110,198 @@ $schedules = $conn->query("SELECT * FROM schedules ORDER BY FIELD(day, 'Mon', 'T
           </div>
         <?php endif; ?>
 
-        <div class="flex gap-2 pt-4 border-t border-gray-100 dark:border-gray-700">
-          <button onclick="editSchedule(<?= htmlspecialchars(json_encode($s)) ?>)"
-            class="flex-1 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors flex items-center justify-center gap-2">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            Edit
-          </button>
-          <form method="POST" onsubmit="return confirm('Hapus jadwal ini?');" class="flex-1">
-            <input type="hidden" name="delete_schedule" value="1">
-            <input type="hidden" name="id" value="<?= $s['id'] ?>">
-            <button type="submit"
-              class="w-full py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors flex items-center justify-center gap-2">
+        <?php if ($role === 'admin'): ?>
+          <div class="flex gap-2 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <button onclick='editSchedule(<?= htmlspecialchars(json_encode($s)) ?>)'
+              class="flex-1 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors flex items-center justify-center gap-2">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
-              Hapus
+              Edit
             </button>
-          </form>
-        </div>
+            <form method="POST" onsubmit="return confirm('Hapus jadwal ini?');" class="flex-1">
+              <input type="hidden" name="delete_schedule" value="1">
+              <input type="hidden" name="id" value="<?= $s['id'] ?>">
+              <button type="submit"
+                class="w-full py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Hapus
+              </button>
+            </form>
+          </div>
+        <?php endif; ?>
       </div>
     <?php endwhile; ?>
   </div>
 
 </div>
+
+<!-- Add Schedule Modal -->
+<div id="addModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+  aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
+      onclick="closeAddModal()"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div
+      class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <form action="" method="POST">
+        <input type="hidden" name="add_schedule" value="1">
+        <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div
+              class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+              <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">Tambah Jadwal
+              </h3>
+              <div class="mt-4 space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hari</label>
+                  <select name="day" required
+                    class="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm p-2 border">
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jam Masuk</label>
+                  <input type="time" name="time_in" required
+                    class="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm p-2 border">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jam Pulang</label>
+                  <input type="time" name="time_out" required
+                    class="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm p-2 border">
+                </div>
+                <div class="flex items-center">
+                  <input type="checkbox" name="is_holiday" id="add_is_holiday"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                  <label for="add_is_holiday" class="ml-2 block text-sm text-gray-900 dark:text-white">Hari
+                    Libur</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button type="submit"
+            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+            Simpan
+          </button>
+          <button type="button" onclick="closeAddModal()"
+            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+            Batal
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Schedule Modal -->
+<div id="editModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+  aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"
+      onclick="closeEditModal()"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+    <div
+      class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <form action="" method="POST">
+        <input type="hidden" name="edit_schedule" value="1">
+        <input type="hidden" name="id" id="edit_id">
+        <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div
+              class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+              <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </div>
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title">Edit Jadwal</h3>
+              <div class="mt-4 space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Hari</label>
+                  <select name="day" id="edit_day" required
+                    class="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm p-2 border">
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jam Masuk</label>
+                  <input type="time" name="time_in" id="edit_time_in" required
+                    class="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm p-2 border">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Jam Pulang</label>
+                  <input type="time" name="time_out" id="edit_time_out" required
+                    class="w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white sm:text-sm p-2 border">
+                </div>
+                <div class="flex items-center">
+                  <input type="checkbox" name="is_holiday" id="edit_is_holiday"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                  <label for="edit_is_holiday" class="ml-2 block text-sm text-gray-900 dark:text-white">Hari
+                    Libur</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button type="submit"
+            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+            Update
+          </button>
+          <button type="button" onclick="closeEditModal()"
+            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-800 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+            Batal
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openAddModal() {
+    document.getElementById('addModal').classList.remove('hidden');
+  }
+
+  function closeAddModal() {
+    document.getElementById('addModal').classList.add('hidden');
+  }
+
+  function editSchedule(schedule) {
+    document.getElementById('edit_id').value = schedule.id;
+    document.getElementById('edit_day').value = schedule.day;
+    document.getElementById('edit_time_in').value = schedule.time_in;
+    document.getElementById('edit_time_out').value = schedule.time_out;
+    document.getElementById('edit_is_holiday').checked = schedule.is_holiday == 1;
+    document.getElementById('editModal').classList.remove('hidden');
+  }
+
+  function closeEditModal() {
+    document.getElementById('editModal').classList.add('hidden');
+  }
+</script>
