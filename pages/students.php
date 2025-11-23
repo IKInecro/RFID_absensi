@@ -327,20 +327,13 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
                 </div>
               <?php endif; ?>
             </div>
-
-            <div
-              class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-              <span>ID: #<?= intval($row['id']) ?></span>
-              <span><?= date('d M Y', strtotime($row['created_at'])) ?></span>
-            </div>
           </article>
-        <?php endwhile; else: ?>
-        <div class="col-span-full py-12 text-center">
-          <div
-            class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400 mb-4">
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+        <?php endwhile; ?>
+      <?php else: ?>
+        <div class="col-span-1 md:col-span-2 xl:col-span-3 flex flex-col items-center justify-center p-12 text-center bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 border-dashed">
+          <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-full mb-4">
+            <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
           </div>
           <h3 class="text-lg font-medium text-gray-900 dark:text-white">Belum ada data siswa</h3>
@@ -465,8 +458,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
               </a>
             </div>
           </div>
-          <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-            <span>ID: #${id}</span>
+          <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-end text-xs text-gray-500 dark:text-gray-400">
             <span>${escapeHtml(r.created_at || '')}</span>
           </div>
         </article>`;
