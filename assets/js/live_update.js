@@ -1,53 +1,123 @@
-// NEW FILE: assets/js/live_update.js
-// Simple long-poll helper. API: LiveUpdates.startLongPoll(options)
-// options:
-//  - url: endpoint (string) e.g. 'api/updates.php?mode=test'
-//  - paramNameForLast: name of query param to send last value, e.g. 'last_id' or 'last_ts'
-//  - getLastValue: function returning last value to send
-//  - onNew: callback(payload) when new item arrives
-//  - onError: optional callback(err)
-// It will re-issue the request after each response (long-poll loop). Keeps a backoff on errors.
+// assets/js/live_update.js - Enhanced version with better error handling and reconnection
+// Auto-refresh system for RFID data (Tester Mode, Live Feed, Students)
 
-var LiveUpdates = (function(){
-    var instances = [];
+var LiveUpdates = (function() {
+  var instances = [];
   
-    function startLongPoll(opts) {
-      if (!opts || !opts.url || !opts.paramNameForLast || !opts.getLastValue || !opts.onNew) {
-        console.error('LiveUpdates: missing options');
-        return;
-      }
-      var running = true;
-      var backoff = 1000;
-      async function loop(){
-        while (running) {
-          try {
-            var last = opts.getLastValue();
-            var url = opts.url + (opts.url.indexOf('?') === -1 ? '?' : '&') + encodeURIComponent(opts.paramNameForLast) + '=' + encodeURIComponent(last || '');
-            var controller = new AbortController();
-            var signal = controller.signal;
-            // fetch with no-cache so server long-poll works
-            var res = await fetch(url, {cache:'no-store', signal: signal, credentials:'same-origin'});
-            if (!res.ok) throw new Error('Network response not OK: ' + res.status);
-            var json = await res.json();
-            if (json && json.new) {
-              try { opts.onNew(json); } catch(e){ console.error('LiveUpdates.onNew error', e); }
+  function startLongPoll(opts) {
+    if (!opts || !opts.url || !opts.paramNameForLast || !opts.getLastValue || !opts.onNew) {
+      console.error('LiveUpdates: missing required options');
+      return null;
+    }
+    
+    var running = true;
+    var backoff = 1000;
+    var maxBackoff = 30000;
+    var consecutiveErrors = 0;
+    
+    async function loop() {
+      while (running) {
+        try {
+          var last = opts.getLastValue();
+          var separator = opts.url.indexOf('?') === -1 ? '?' : '&';
+          var url = opts.url + separator + encodeURIComponent(opts.paramNameForLast) + '=' + encodeURIComponent(last || '0');
+          
+          var controller = new AbortController();
+          var timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
+          
+          var res = await fetch(url, {
+            cache: 'no-store',
+            signal: controller.signal,
+            credentials: 'same-origin',
+            headers: {
+              'Accept': 'application/json',
+              'X-Requested-With': 'XMLHttpRequest'
             }
-            // reset backoff on success
-            backoff = 1000;
-          } catch (err) {
-            if (opts.onError) try { opts.onError(err); } catch(e){}
-            console.error('LiveUpdates error:', err);
-            await new Promise(r => setTimeout(r, backoff));
-            backoff = Math.min(30000, backoff * 1.6);
+          });
+          
+          clearTimeout(timeoutId);
+          
+          if (!res.ok) {
+            throw new Error('HTTP ' + res.status + ': ' + res.statusText);
+          }
+          
+          var json = await res.json();
+          
+          // Handle new data
+          if (json && json.new) {
+            try {
+              opts.onNew(json);
+              consecutiveErrors = 0; // Reset error counter on success
+            } catch(e) {
+              console.error('LiveUpdates.onNew callback error:', e);
+            }
+          }
+          
+          // Reset backoff on successful response
+          backoff = 1000;
+          
+        } catch (err) {
+          consecutiveErrors++;
+          
+          if (err.name === 'AbortError') {
+            console.warn('LiveUpdates: Request timeout, retrying...');
+          } else {
+            console.error('LiveUpdates error:', err.message || err);
+          }
+          
+          if (opts.onError) {
+            try {
+              opts.onError(err, consecutiveErrors);
+            } catch(e) {
+              console.error('LiveUpdates.onError callback error:', e);
+            }
+          }
+          
+          // Exponential backoff with max limit
+          await new Promise(resolve => setTimeout(resolve, backoff));
+          backoff = Math.min(maxBackoff, backoff * 1.5);
+          
+          // If too many consecutive errors, increase backoff more aggressively
+          if (consecutiveErrors > 5) {
+            backoff = Math.min(maxBackoff, backoff * 2);
           }
         }
       }
-      loop();
-      var api = { stop: function(){ running = false; } };
-      instances.push(api);
-      return api;
     }
+    
+    loop();
+    
+    var api = {
+      stop: function() {
+        running = false;
+        console.log('LiveUpdates: Polling stopped for', opts.url);
+      },
+      isRunning: function() {
+        return running;
+      }
+    };
+    
+    instances.push(api);
+    return api;
+  }
   
-    return { startLongPoll: startLongPoll };
-  })();
+  function stopAll() {
+    instances.forEach(function(inst) {
+      if (inst && inst.stop) inst.stop();
+    });
+    instances = [];
+    console.log('LiveUpdates: All polling stopped');
+  }
   
+  return {
+    startLongPoll: startLongPoll,
+    stopAll: stopAll
+  };
+})();
+
+// Auto-start cleanup on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', function() {
+    LiveUpdates.stopAll();
+  });
+}
