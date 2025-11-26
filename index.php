@@ -13,7 +13,7 @@ $username = $_SESSION['username'] ?? 'User';
 $page = $_GET['page'] ?? 'dashboard';
 
 // RBAC: Define allowed pages for 'user' role
-$allowed_user_pages = ['dashboard', 'live_feed', 'tester', 'attendance_log', 'schedule', 'students'];
+$allowed_user_pages = ['dashboard', 'live_feed', 'tester', 'attendance_log', 'schedule', 'students', 'scan'];
 
 if ($role === 'user' && !in_array($page, $allowed_user_pages)) {
     // If user tries to access restricted page, redirect to dashboard

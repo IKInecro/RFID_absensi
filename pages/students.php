@@ -97,31 +97,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
       <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Data Siswa</h1>
       <p class="text-gray-500 dark:text-gray-400 text-sm">Kelola data siswa dan kartu RFID.</p>
     </div>
-
-    <?php if ($role === 'admin'): ?>
-      <div
-        class="flex items-center gap-2 bg-white dark:bg-gray-800 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-        <div class="flex items-center gap-2 px-2">
-          <span class="text-xs font-medium text-gray-600 dark:text-gray-300">Mode Registrasi</span>
-          <button id="regSwitch" role="switch" aria-checked="<?= $reg_mode ? 'true' : 'false' ?>"
-            class="relative inline-flex items-center h-5 w-9 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 <?= $reg_mode ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700' ?>"
-            data-checked="<?= $reg_mode ? '1' : '0' ?>">
-            <span class="sr-only">Toggle Registrasi</span>
-            <span
-              class="dot absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform <?= $reg_mode ? 'translate-x-4' : '' ?>"></span>
-          </button>
-        </div>
-        <div class="h-5 w-px bg-gray-200 dark:bg-gray-700"></div>
-        <div class="px-2">
-          <span id="modeLabel"
-            class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded <?= $reg_mode ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : ($test_mode ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400') ?>">
-            <?= $reg_mode ? 'Register' : ($test_mode ? 'Tester' : 'Normal') ?>
-          </span>
-        </div>
-      </div>
-    <?php endif; ?>
   </div>
-
   <!-- Form Section -->
   <?php if ($role === 'admin'): ?>
     <section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 shadow-sm">
@@ -330,10 +306,12 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == 1) {
           </article>
         <?php endwhile; ?>
       <?php else: ?>
-        <div class="col-span-1 md:col-span-2 xl:col-span-3 flex flex-col items-center justify-center p-12 text-center bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 border-dashed">
+        <div
+          class="col-span-1 md:col-span-2 xl:col-span-3 flex flex-col items-center justify-center p-12 text-center bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 border-dashed">
           <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-full mb-4">
             <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
             </svg>
           </div>
           <h3 class="text-lg font-medium text-gray-900 dark:text-white">Belum ada data siswa</h3>

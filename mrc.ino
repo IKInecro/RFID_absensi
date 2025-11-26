@@ -19,7 +19,8 @@ const char* password1 = "Sebentar202#";
 const char* ssid2 = "Server 5";  // Ganti dengan SSID backup lu
 const char* password2 = "Seberntar202";  // Ganti dengan password backup lu
 
-const char* serverURL = "http://192.168.100.152/RFID/api/attendance.php";
+// GANTI IP INI SESUAI DENGAN IP KOMPUTER KAMU (Cek pakai cmd > ipconfig)
+const char* serverURL = "http://192.168.100.184/RFID/api/attendance.php";
 const char* device_id = "ESP8266-1";
 
 void updateLEDStatus(bool connected) {

@@ -53,14 +53,10 @@ if ($res = $conn->query("SELECT reg_mode FROM settings WHERE id = 1")) {
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-
     /* Custom Scrollbar */
     ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+      width: 6px;
+      height: 6px;
     }
 
     ::-webkit-scrollbar-track {
@@ -69,7 +65,7 @@ if ($res = $conn->query("SELECT reg_mode FROM settings WHERE id = 1")) {
 
     ::-webkit-scrollbar-thumb {
       background: #cbd5e1;
-      border-radius: 4px;
+      border-radius: 3px;
     }
 
     .dark ::-webkit-scrollbar-thumb {
@@ -92,8 +88,9 @@ if ($res = $conn->query("SELECT reg_mode FROM settings WHERE id = 1")) {
   <!-- Sidebar -->
   <aside id="sidebar"
     class="fixed top-0 left-0 z-50 h-screen w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 shadow-xl lg:shadow-none flex flex-col">
+
     <!-- Logo -->
-    <div class="h-16 flex items-center px-6 border-b border-gray-100 dark:border-gray-700">
+    <div class="h-16 flex items-center px-6 border-b border-gray-100 dark:border-gray-700 shrink-0">
       <div class="flex items-center gap-3">
         <img src="assets/img/pgri_transparent.png" alt="Logo" class="w-10 h-10 object-contain">
         <span
@@ -108,6 +105,7 @@ if ($res = $conn->query("SELECT reg_mode FROM settings WHERE id = 1")) {
       <?php
       $menu = [
         'dashboard' => ['label' => 'Dashboard', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />'],
+        'scan' => ['label' => 'Scan/Register', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />'],
         'students' => ['label' => 'Data Siswa', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />'],
         'schedule' => ['label' => 'Jadwal', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />'],
         'attendance_log' => ['label' => 'Log Absensi', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />'],
@@ -116,12 +114,16 @@ if ($res = $conn->query("SELECT reg_mode FROM settings WHERE id = 1")) {
       ];
 
       foreach ($menu as $k => $v):
-        $active = ($page == $k) ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 font-semibold' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-gray-200';
+        $isActive = ($page == $k);
+        $activeClass = $isActive
+          ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 font-semibold shadow-sm ring-1 ring-blue-200 dark:ring-blue-800'
+          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-gray-200 hover:translate-x-1';
         ?>
         <a href="index.php?page=<?= $k ?>"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group <?= $active ?>">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:scale-110" fill="none"
-            viewBox="0 0 24 24" stroke="currentColor">
+          class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group <?= $activeClass ?>">
+          <svg xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 transition-transform group-hover:scale-110 <?= $isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300' ?>"
+            fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <?= $v['icon'] ?>
           </svg>
           <span><?= $v['label'] ?></span>
@@ -136,12 +138,12 @@ if ($res = $conn->query("SELECT reg_mode FROM settings WHERE id = 1")) {
     </nav>
 
     <!-- User Profile -->
-    <div class="p-4 border-t border-gray-100 dark:border-gray-700">
+    <div class="p-4 border-t border-gray-100 dark:border-gray-700 shrink-0">
       <div
-        class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700">
+        class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer group">
         <div
-          class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-md">
-          A
+          class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-md group-hover:scale-105 transition-transform">
+          <?= strtoupper(substr($username ?? 'U', 0, 1)) ?>
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-sm font-bold text-gray-900 dark:text-white truncate">
@@ -155,16 +157,15 @@ if ($res = $conn->query("SELECT reg_mode FROM settings WHERE id = 1")) {
     </div>
   </aside>
 
-  <!-- Main Content -->
   <!-- Main Content Wrapper -->
   <div class="lg:ml-64 min-h-screen flex flex-col transition-all duration-300">
 
     <!-- Topbar -->
     <header
-      class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-16 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30 transition-colors duration-300">
+      class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 h-16 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30 transition-colors duration-300/80 backdrop-blur-md bg-white/90 dark:bg-gray-800/90">
       <div class="flex items-center gap-4">
         <button id="sidebarToggle"
-          class="lg:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+          class="lg:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -184,7 +185,7 @@ if ($res = $conn->query("SELECT reg_mode FROM settings WHERE id = 1")) {
 
         <!-- Theme Toggle -->
         <button id="themeToggle"
-          class="relative inline-flex items-center h-8 w-14 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 bg-gray-200 dark:bg-gray-700 border border-gray-300 dark:border-gray-600">
+          class="relative inline-flex items-center h-8 w-14 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 bg-gray-200 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500">
           <span class="sr-only">Toggle Theme</span>
           <span id="themeIndicator"
             class="transform transition-transform duration-200 ease-in-out translate-x-1 dark:translate-x-7 inline-block w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center">
@@ -203,7 +204,7 @@ if ($res = $conn->query("SELECT reg_mode FROM settings WHERE id = 1")) {
           </span>
         </button>
 
-        <!-- User Profile -->
+        <!-- User Profile (Mobile/Desktop) -->
         <div class="flex items-center gap-3 pl-3 sm:pl-4 border-l border-gray-200 dark:border-gray-700">
           <div class="text-right hidden sm:block">
             <p class="text-sm font-bold text-gray-900 dark:text-white"><?= htmlspecialchars($username ?? 'User') ?></p>

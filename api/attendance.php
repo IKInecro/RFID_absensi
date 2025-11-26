@@ -6,18 +6,21 @@ include __DIR__ . '/../db.php';
 date_default_timezone_set('Asia/Jakarta');
 header('Content-Type: application/json; charset=utf-8');
 
-// Read input
+// Read input (support both JSON and POST)
+$input = [];
 $raw = @file_get_contents('php://input');
-$input = @json_decode($raw, true);
-if ($raw === false || $input === null || !is_array($input)) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid JSON payload']);
-    exit;
+$json = @json_decode($raw, true);
+
+if (is_array($json)) {
+    $input = $json;
+} else {
+    $input = $_POST;
 }
 
 $device_id = trim($input['device_id'] ?? '');
 $uid = trim($input['uid'] ?? '');
 $timestamp = trim($input['timestamp'] ?? date('Y-m-d H:i:s'));
+
 if ($device_id === '' || $uid === '') {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Missing device_id or uid']);
@@ -71,12 +74,10 @@ if ($reg_mode == 1) {
 
 // === TEST MODE ===
 if ($test_mode == 1) {
-    if (!$student) {
-        echo json_encode(['success' => false, 'status' => 'unknown', 'mode' => 'test', 'message' => 'Card not registered (test mode).']);
-        exit;
-    }
+    // In Test Mode, we accept ANY card, even if not registered
+    // But if registered, we show the name
 
-    // Determine schedule status
+    // Determine schedule status (just for display)
     $day = date('D', strtotime($timestamp));
     $now = date('H:i:s', strtotime($timestamp));
     $status = 'Tidak Diketahui';
@@ -114,50 +115,34 @@ if ($test_mode == 1) {
             $data = [];
     }
 
-    // Check if this card was already tapped recently (prevent duplicates)
-    $normUid = strtoupper($uid);
-    $foundIndex = null;
-    $now_ts = strtotime($timestamp);
-
-    foreach ($data as $i => $entry) {
-        if (isset($entry['card_id']) && strtoupper($entry['card_id']) === $normUid) {
-            $entry_ts = strtotime($entry['timestamp'] ?? '');
-            // If same card tapped within 5 seconds, update instead of adding new
-            if ($now_ts - $entry_ts < 5) {
-                $foundIndex = $i;
-                break;
-            }
-        }
-    }
-
+    // Create entry
     $entry = [
-        'timestamp' => $timestamp,
+        'id' => time(),
+        'timestamp' => $timestamp, // Use the timestamp from device or current time
         'card_id' => $uid,
         'device_id' => $device_id,
         'schedule_status' => $status,
-        'name' => $student['name'],
-        'class' => $student['class'],
-        'profile_pic' => $student['profile_pic'] ?? null
+        'student_name' => $student ? $student['name'] : 'Unknown Card',
+        'student_class' => $student ? $student['class'] : 'N/A',
+        'profile_pic' => $student ? $student['profile_pic'] : null,
+        'status' => $status
     ];
 
-    if ($foundIndex !== null) {
-        // Update existing entry
-        $data[$foundIndex] = $entry;
-    } else {
-        // Add new entry at the beginning
-        array_unshift($data, $entry);
-    }
+    // Add new entry at the beginning
+    array_unshift($data, $entry); // Add to top
 
-    $data = array_slice($data, 0, 300);
-    @file_put_contents($file, json_encode($data, JSON_UNESCAPED_UNICODE), LOCK_EX);
+    // Keep only last 50 entries
+    $data = array_slice($data, 0, 50);
+
+    @file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), LOCK_EX);
 
     echo json_encode([
         'success' => true,
         'mode' => 'test',
-        'message' => 'Test data updated',
+        'message' => 'Test data recorded',
         'status' => $status,
-        'name' => $student['name'],
-        'class' => $student['class']
+        'name' => $student ? $student['name'] : 'Unknown Card',
+        'class' => $student ? $student['class'] : 'N/A'
     ]);
     exit;
 }

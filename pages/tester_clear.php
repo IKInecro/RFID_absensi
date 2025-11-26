@@ -3,7 +3,7 @@
 // Clear data untuk tester mode (test_data.json) — improved: LOCK_EX, better errors, returns JSON with proper code
 header('Content-Type: application/json; charset=utf-8');
 try {
-    $testFile = __DIR__ . '/test_data.json';
+    $testFile = __DIR__ . '/../test_data.json';
 
     // only allow POST for safety
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
