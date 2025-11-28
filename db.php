@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db   = "absensi_rfid";
+$db = "absensi_rfid";
 
 $conn = new mysqli($host, $user, $pass, $db);
 

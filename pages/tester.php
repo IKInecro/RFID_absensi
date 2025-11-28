@@ -222,7 +222,7 @@ $test_mode = $setting['test_mode'] ?? 0;
               <h4 class="text-sm font-bold text-gray-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">${item.student_name || ('Card: ' + item.card_id)}</h4>
               <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">${item.student_class || '-'}</p>
             </div>
-            <span class="text-xs font-mono text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded-md">${item.timestamp || '-'}</span>
+            <span class="text-xs font-mono text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded-md">${item.timestamp.split(' ')[1] || '-'}</span>
           </div>
         </div>
         
@@ -237,67 +237,104 @@ $test_mode = $setting['test_mode'] ?? 0;
   }
 
   function addItem(item, animate = true) {
-    if (item.id && seenIds.has(String(item.id))) return;
-    if (item.timestamp && last_ts && item.timestamp === last_ts) return;
+    if (seenIds.has(item.id)) return;
+    seenIds.add(item.id);
 
-    // Remove empty state
-    const empty = feedEl.querySelector('.empty');
-    if (empty) empty.remove();
+    // Remove empty state if present
+    const emptyState = feedEl.querySelector('.empty');
+    if (emptyState) emptyState.remove();
 
-    const node = document.createElement('div');
-    node.className = 'p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors animate-fade-in border-l-4 border-transparent hover:border-indigo-500 dark:hover:border-indigo-400';
-    node.innerHTML = buildItemHtml(item);
+    const div = document.createElement('div');
+    div.className = 'p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors duration-200';
+    if (animate) div.classList.add('animate-slide-in');
+    div.innerHTML = buildItemHtml(item);
 
-    feedEl.insertBefore(node, feedEl.firstChild);
-    if (animate) { playBeep(); updateLatestScan(item); }
-    if (item.id) seenIds.add(String(item.id));
-    if (item.timestamp) last_ts = item.timestamp;
-    while (feedEl.children.length > 20) feedEl.removeChild(feedEl.lastChild);
+    feedEl.insertBefore(div, feedEl.firstChild);
+    
+    // Keep list manageable
+    if (feedEl.children.length > 50) {
+      feedEl.lastChild.remove();
+    }
+
+    updateLatestScan(item);
+    if (animate) playBeep();
   }
 
-  setInterval(async () => {
+  async function fetchUpdates() {
     try {
-      const res = await fetch('api/updates.php?mode=test&last_ts=' + encodeURIComponent(last_ts), { cache: 'no-store' });
-      const json = await res.json();
-      if (!json.success || !Array.isArray(json.entries)) return;
+      const res = await fetch(`../api/updates.php?mode=test&last_ts=${encodeURIComponent(last_ts)}`);
+      const data = await res.json();
 
-      const entries = json.entries;
-      entries.sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
-
-      for (const it of entries) {
-        if (it.timestamp && last_ts && it.timestamp <= last_ts) continue;
-        if (it.id && seenIds.has(String(it.id))) continue;
-        addItem(it, true);
+      if (data.new && data.entries) {
+        // Process oldest to newest so they appear in correct order
+        data.entries.sort((a, b) => a.timestamp.localeCompare(b.timestamp));
+        
+        data.entries.forEach(entry => {
+          addItem(entry);
+          if (entry.timestamp > last_ts) last_ts = entry.timestamp;
+        });
       }
-    } catch (e) { console.error(e); }
-  }, 3000);
+    } catch (e) {
+      console.error("Polling error:", e);
+    } finally {
+      // Continue polling
+      setTimeout(fetchUpdates, 1000);
+    }
+  }
 
   async function clearData() {
-    if (!confirm('Clear all test data?')) return;
+    if (!confirm('Are you sure you want to clear all test data?')) return;
+    
     try {
-      const res = await fetch('pages/tester_clear.php', { method: 'POST' });
-      const json = await res.json();
-      if (res.ok && json.success) {
-        feedEl.innerHTML = '<div class="p-16 text-center empty flex flex-col items-center justify-center"><div class="w-16 h-16 bg-gray-50 dark:bg-gray-800/50 rounded-full flex items-center justify-center mb-4"><svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><p class="text-gray-500 dark:text-gray-400 font-medium">Data cleared.</p><p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Waiting for new data...</p></div>';
-        seenIds.clear(); last_ts = '';
-        latestEl.innerHTML = '<div class="text-center py-8"><div class="w-24 h-24 mx-auto bg-gray-50 dark:bg-gray-800 rounded-2xl flex items-center justify-center mb-4 border-2 border-dashed border-gray-200 dark:border-gray-700"><svg class="w-8 h-8 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><p class="text-sm text-gray-500 dark:text-gray-400">No recent activity</p></div>';
-      }
-    } catch (e) { console.error(e); }
+      await fetch('tester_clear.php', { method: 'POST' });
+      feedEl.innerHTML = `
+        <div class="p-16 text-center empty flex flex-col items-center justify-center">
+          <div class="w-16 h-16 bg-gray-50 dark:bg-gray-800/50 rounded-full flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p class="text-gray-500 dark:text-gray-400 font-medium">Waiting for incoming data...</p>
+          <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Simulate a tap or use the hardware reader</p>
+        </div>
+      `;
+      latestEl.innerHTML = `
+        <div class="text-center py-8">
+          <div class="w-24 h-24 mx-auto bg-gray-50 dark:bg-gray-800 rounded-2xl flex items-center justify-center mb-4 border-2 border-dashed border-gray-200 dark:border-gray-700">
+            <svg class="w-8 h-8 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p class="text-sm text-gray-500 dark:text-gray-400">No recent activity</p>
+        </div>
+      `;
+      seenIds.clear();
+      last_ts = '';
+    } catch (e) {
+      alert('Failed to clear data');
+    }
   }
 
-  // Simulasi data secara client-side tanpa panggilan server
-  window.simulate = (type) => {
-    // Buat entri dummy
-    const ts = new Date().toISOString().replace('T', ' ').split('.')[0];
+  async function simulate(type) {
+    const ts = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const dummy = {
-      id: Date.now(),
-      card_id: type === 'unknown' ? 'UNKNOWN-' + Math.floor(1000 + Math.random() * 9000) : 'SIM-' + Math.floor(1000 + Math.random() * 9000),
-      timestamp: ts,
-      student_name: type === 'unknown' ? null : 'Simulated Student',
-      student_class: type === 'unknown' ? null : 'XII-RPL',
-      profile_pic: null,
-      schedule_status: type === 'unknown' ? 'Tidak Diketahui' : 'On Time'
+      device_id: 'SIMULATOR',
+      uid: 'SIM-' + Math.floor(1000 + Math.random() * 9000),
+      timestamp: ts
     };
-    addItem(dummy, true);
-  };
+
+    try {
+      await fetch('../api/attendance.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dummy)
+      });
+      // The polling loop will pick this up
+    } catch (e) {
+      console.error("Simulation failed:", e);
+    }
+  }
+
+  // Start polling
+  fetchUpdates();
 </script>

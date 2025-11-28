@@ -1,1 +1,68 @@
-[]
+[
+    {
+        "id": 1764307986,
+        "timestamp": "2025-11-28 12:33:06",
+        "card_id": "038FD9EE",
+        "device_id": "ESP8266-1",
+        "schedule_status": "Out of Schedule",
+        "student_name": "NURUL ZAHRA",
+        "student_class": "XII IPA 2",
+        "profile_pic": "default.png",
+        "status": "Out of Schedule"
+    },
+    {
+        "id": 1764307983,
+        "timestamp": "2025-11-28 12:33:03",
+        "card_id": "F34DCBEE",
+        "device_id": "ESP8266-1",
+        "schedule_status": "Out of Schedule",
+        "student_name": "DAMAR MAYA",
+        "student_class": "XII IPA 2",
+        "profile_pic": "default.png",
+        "status": "Out of Schedule"
+    },
+    {
+        "id": 1764307980,
+        "timestamp": "2025-11-28 12:33:00",
+        "card_id": "A345CAEE",
+        "device_id": "ESP8266-1",
+        "schedule_status": "Out of Schedule",
+        "student_name": "SUCI DWI AMANDA",
+        "student_class": "XII IPA 2",
+        "profile_pic": "default.png",
+        "status": "Out of Schedule"
+    },
+    {
+        "id": 1764307976,
+        "timestamp": "2025-11-28 12:32:56",
+        "card_id": "534BCEEE",
+        "device_id": "ESP8266-1",
+        "schedule_status": "Out of Schedule",
+        "student_name": "MUTIA ALSA",
+        "student_class": "XII IPS 2",
+        "profile_pic": "default.png",
+        "status": "Out of Schedule"
+    },
+    {
+        "id": 1764307972,
+        "timestamp": "2025-11-28 12:32:52",
+        "card_id": "D056675F",
+        "device_id": "ESP8266-1",
+        "schedule_status": "Out of Schedule",
+        "student_name": "MUHTADIN",
+        "student_class": "XII IPA 2",
+        "profile_pic": "default.png",
+        "status": "Out of Schedule"
+    },
+    {
+        "id": 1764307963,
+        "timestamp": "2025-11-28 12:32:43",
+        "card_id": "E34FCBEE",
+        "device_id": "ESP8266-1",
+        "schedule_status": "Out of Schedule",
+        "student_name": "EKA SRI MULYANI",
+        "student_class": "XII IPA 2",
+        "profile_pic": "default.png",
+        "status": "Out of Schedule"
+    }
+]
