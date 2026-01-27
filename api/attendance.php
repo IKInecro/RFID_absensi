@@ -6,9 +6,19 @@ include __DIR__ . '/../db.php';
 date_default_timezone_set('Asia/Jakarta');
 header('Content-Type: application/json; charset=utf-8');
 
+// DEBUG LOGGING
+function log_debug($msg) {
+    $logFile = __DIR__ . '/../debug_log.txt';
+    $time = date('[Y-m-d H:i:s] ');
+    file_put_contents($logFile, $time . $msg . "\n", FILE_APPEND);
+}
+log_debug("Request received from " . $_SERVER['REMOTE_ADDR']);
+
+
 // Read input (support both JSON and POST)
 $input = [];
 $raw = @file_get_contents('php://input');
+log_debug("Raw input: " . $raw);
 $json = @json_decode($raw, true);
 
 if (is_array($json)) {
@@ -149,9 +159,11 @@ if ($test_mode == 1) {
 
 // === NORMAL MODE ===
 if (!$student) {
+    log_debug("Normal Mode: Card $uid not registered. Exiting.");
     echo json_encode(['success' => false, 'status' => 'unknown', 'message' => 'Card not registered']);
     exit;
 }
+log_debug("Normal Mode: Found student " . $student['name']);
 
 // Compute schedule status
 $day = date('D', strtotime($timestamp));
@@ -190,14 +202,22 @@ $exists = $check->get_result()->num_rows > 0;
 $check->close();
 
 if (!$exists) {
+    log_debug("Inserting new attendance record for " . $student['name']);
     $ins = $conn->prepare("INSERT INTO attendance_log (student_id, card_id, device_id, schedule_status, timestamp) VALUES (?, ?, ?, ?, ?)");
     $ins->bind_param('issss', $student['id'], $uid, $device_id, $status, $timestamp);
-    $ins->execute();
+    if($ins->execute()){
+         log_debug("Database insert success");
+    } else {
+         log_debug("Database insert failed: " . $conn->error);
+    }
     $ins->close();
+} else {
+    log_debug("Duplicate attendance detected for " . $student['name']);
 }
 
 // Update live_feed.json for dashboard
 $feed = __DIR__ . '/../live_feed.json';
+log_debug("Updating live_feed.json");
 $feedData = [];
 if (file_exists($feed)) {
     $r = @file_get_contents($feed);
@@ -207,6 +227,7 @@ if (file_exists($feed)) {
 }
 
 $newEntry = [
+    'id' => time(), // Add ID for frontend unique key
     'timestamp' => $timestamp,
     'card_id' => $uid,
     'device_id' => $device_id,
@@ -218,7 +239,8 @@ $newEntry = [
 
 array_unshift($feedData, $newEntry);
 $feedData = array_slice($feedData, 0, 300);
-@file_put_contents($feed, json_encode($feedData, JSON_UNESCAPED_UNICODE), LOCK_EX);
+$res = @file_put_contents($feed, json_encode($feedData, JSON_UNESCAPED_UNICODE), LOCK_EX);
+if($res === false) log_debug("Failed to write to live_feed.json");
 
 echo json_encode([
     'success' => true,

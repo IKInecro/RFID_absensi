@@ -262,7 +262,7 @@ $test_mode = $setting['test_mode'] ?? 0;
 
   async function fetchUpdates() {
     try {
-      const res = await fetch(`../api/updates.php?mode=test&last_ts=${encodeURIComponent(last_ts)}`);
+      const res = await fetch(`api/updates.php?mode=test&last_ts=${encodeURIComponent(last_ts)}`);
       const data = await res.json();
 
       if (data.new && data.entries) {
@@ -324,7 +324,7 @@ $test_mode = $setting['test_mode'] ?? 0;
     };
 
     try {
-      await fetch('../api/attendance.php', {
+      await fetch('api/attendance.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dummy)

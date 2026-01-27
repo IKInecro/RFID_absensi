@@ -1,0 +1,317 @@
+Log started
+[2026-01-18 12:57:36] Request received from ::1
+[2026-01-18 12:58:47] Request received from 192.168.100.72
+[2026-01-18 12:58:47] Raw input: {"device_id":"ESP8266-1","uid":"E34FCBEE"}
+[2026-01-18 12:58:55] Request received from 192.168.100.72
+[2026-01-18 12:58:55] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-18 12:59:00] Request received from 192.168.100.72
+[2026-01-18 12:59:00] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 12:59:02] Request received from 192.168.100.72
+[2026-01-18 12:59:02] Raw input: {"device_id":"ESP8266-1","uid":"A345CAEE"}
+[2026-01-18 12:59:06] Request received from 192.168.100.72
+[2026-01-18 12:59:06] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 12:59:10] Request received from 192.168.100.72
+[2026-01-18 12:59:10] Raw input: {"device_id":"ESP8266-1","uid":"D056675F"}
+[2026-01-18 12:59:13] Request received from 192.168.100.72
+[2026-01-18 12:59:13] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-18 12:59:14] Request received from 192.168.100.72
+[2026-01-18 12:59:14] Raw input: {"device_id":"ESP8266-1","uid":"F34DCBEE"}
+[2026-01-18 13:00:50] Request received from 192.168.100.72
+[2026-01-18 13:00:50] Raw input: {"device_id":"ESP8266-1","uid":"E34FCBEE"}
+[2026-01-18 13:00:54] Request received from 192.168.100.72
+[2026-01-18 13:00:54] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-18 13:00:57] Request received from 192.168.100.72
+[2026-01-18 13:00:57] Raw input: {"device_id":"ESP8266-1","uid":"D056675F"}
+[2026-01-18 13:01:13] Request received from 192.168.100.72
+[2026-01-18 13:01:13] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:04:21] Request received from ::1
+[2026-01-18 13:04:21] Raw input: {"device_id":"DEBUG-TEST", "uid":"038FD9EE"}
+[2026-01-18 13:07:05] Request received from 192.168.100.72
+[2026-01-18 13:07:05] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:07:50] Request received from 192.168.100.72
+[2026-01-18 13:07:50] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:10:44] Request received from 192.168.100.72
+[2026-01-18 13:10:44] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:10:44] Normal Mode: Found student JOKOWI
+[2026-01-18 13:10:44] Inserting new attendance record for JOKOWI
+[2026-01-18 13:26:41] Request received from 192.168.100.72
+[2026-01-18 13:26:41] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:26:41] Normal Mode: Found student JOKOWI
+[2026-01-18 13:26:41] Inserting new attendance record for JOKOWI
+[2026-01-18 13:26:48] Request received from 192.168.100.72
+[2026-01-18 13:26:48] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:26:48] Normal Mode: Found student JOKOWI
+[2026-01-18 13:26:48] Inserting new attendance record for JOKOWI
+[2026-01-18 13:27:01] Request received from 192.168.100.72
+[2026-01-18 13:27:01] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:27:04] Request received from 192.168.100.72
+[2026-01-18 13:27:04] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:27:05] Request received from 192.168.100.72
+[2026-01-18 13:27:05] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:27:06] Request received from 192.168.100.72
+[2026-01-18 13:27:06] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:30:09] Request received from ::1
+[2026-01-18 13:30:09] Raw input: {"device_id":"DEBUG-FIX", "uid":"78C704AB", "timestamp":"2026-01-18 13:30:00"}
+[2026-01-18 13:30:09] Normal Mode: Found student JOKOWI
+[2026-01-18 13:30:09] Inserting new attendance record for JOKOWI
+[2026-01-18 13:30:09] Database insert success
+[2026-01-18 13:30:09] Updating live_feed.json
+[2026-01-18 13:31:00] Request received from 192.168.100.72
+[2026-01-18 13:31:00] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:31:00] Normal Mode: Found student JOKOWI
+[2026-01-18 13:31:00] Duplicate attendance detected for JOKOWI
+[2026-01-18 13:31:00] Updating live_feed.json
+[2026-01-18 13:31:05] Request received from 192.168.100.72
+[2026-01-18 13:31:05] Raw input: {"device_id":"ESP8266-1","uid":"D056675F"}
+[2026-01-18 13:31:05] Normal Mode: Found student MUHTADIN
+[2026-01-18 13:31:05] Inserting new attendance record for MUHTADIN
+[2026-01-18 13:31:05] Database insert success
+[2026-01-18 13:31:05] Updating live_feed.json
+[2026-01-18 13:31:22] Request received from 192.168.100.72
+[2026-01-18 13:31:22] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-18 13:31:27] Request received from 192.168.100.72
+[2026-01-18 13:31:27] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:41:32] Request received from 192.168.100.72
+[2026-01-18 13:41:32] Raw input: {"device_id":"ESP8266-1","uid":"D056675F"}
+[2026-01-18 13:41:35] Request received from 192.168.100.72
+[2026-01-18 13:41:35] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-18 13:41:37] Request received from 192.168.100.72
+[2026-01-18 13:41:37] Raw input: {"device_id":"ESP8266-1","uid":"E34FCBEE"}
+[2026-01-18 13:41:39] Request received from 192.168.100.72
+[2026-01-18 13:41:39] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-18 13:41:51] Request received from 192.168.100.72
+[2026-01-18 13:41:51] Raw input: {"device_id":"ESP8266-1","uid":"A345CAEE"}
+[2026-01-18 13:41:53] Request received from 192.168.100.72
+[2026-01-18 13:41:53] Raw input: {"device_id":"ESP8266-1","uid":"F34DCBEE"}
+[2026-01-18 13:41:58] Request received from 192.168.100.72
+[2026-01-18 13:41:58] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:42:43] Request received from 192.168.100.72
+[2026-01-18 13:42:43] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:50:04] Request received from 192.168.100.72
+[2026-01-18 13:50:04] Raw input: {"device_id":"ESP8266-1","uid":"F34DCBEE"}
+[2026-01-18 13:50:08] Request received from 192.168.100.72
+[2026-01-18 13:50:08] Raw input: {"device_id":"ESP8266-1","uid":"A345CAEE"}
+[2026-01-18 13:50:13] Request received from 192.168.100.72
+[2026-01-18 13:50:13] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-18 13:53:29] Request received from 192.168.100.72
+[2026-01-18 13:53:29] Raw input: {"device_id":"ESP8266-1","uid":"D056675F"}
+[2026-01-18 13:53:29] Normal Mode: Found student MUHTADIN
+[2026-01-18 13:53:29] Duplicate attendance detected for MUHTADIN
+[2026-01-18 13:53:29] Updating live_feed.json
+[2026-01-18 13:53:44] Request received from 192.168.100.72
+[2026-01-18 13:53:44] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-18 13:53:44] Normal Mode: Found student NURUL ZAHRA
+[2026-01-18 13:53:44] Inserting new attendance record for NURUL ZAHRA
+[2026-01-18 13:53:44] Database insert success
+[2026-01-18 13:53:44] Updating live_feed.json
+[2026-01-18 13:53:48] Request received from 192.168.100.72
+[2026-01-18 13:53:48] Raw input: {"device_id":"ESP8266-1","uid":"E34FCBEE"}
+[2026-01-18 13:53:48] Normal Mode: Found student EKA SRI MULYANI
+[2026-01-18 13:53:48] Inserting new attendance record for EKA SRI MULYANI
+[2026-01-18 13:53:48] Database insert success
+[2026-01-18 13:53:48] Updating live_feed.json
+[2026-01-18 13:53:51] Request received from 192.168.100.72
+[2026-01-18 13:53:51] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-18 13:53:51] Normal Mode: Card 534BCEEE not registered. Exiting.
+[2026-01-18 13:53:55] Request received from 192.168.100.72
+[2026-01-18 13:53:55] Raw input: {"device_id":"ESP8266-1","uid":"F34DCBEE"}
+[2026-01-18 13:53:55] Normal Mode: Found student DAMAR MAYA
+[2026-01-18 13:53:55] Inserting new attendance record for DAMAR MAYA
+[2026-01-18 13:53:55] Database insert success
+[2026-01-18 13:53:55] Updating live_feed.json
+[2026-01-18 13:54:01] Request received from 192.168.100.72
+[2026-01-18 13:54:01] Raw input: {"device_id":"ESP8266-1","uid":"A345CAEE"}
+[2026-01-18 13:54:01] Normal Mode: Found student SUCI DEWI AMANDA
+[2026-01-18 13:54:01] Inserting new attendance record for SUCI DEWI AMANDA
+[2026-01-18 13:54:01] Database insert success
+[2026-01-18 13:54:01] Updating live_feed.json
+[2026-01-18 13:54:04] Request received from 192.168.100.72
+[2026-01-18 13:54:04] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-18 13:54:04] Normal Mode: Found student IKI MARCO
+[2026-01-18 13:54:04] Inserting new attendance record for IKI MARCO
+[2026-01-18 13:54:04] Database insert success
+[2026-01-18 13:54:04] Updating live_feed.json
+[2026-01-18 14:04:50] Request received from 192.168.100.72
+[2026-01-18 14:04:50] Raw input: {"device_id":"ESP8266-1","uid":"A345CAEE"}
+[2026-01-18 14:04:50] Normal Mode: Found student SUCI DEWI AMANDA
+[2026-01-18 14:04:50] Duplicate attendance detected for SUCI DEWI AMANDA
+[2026-01-18 14:04:50] Updating live_feed.json
+[2026-01-18 14:48:30] Request received from 192.168.100.72
+[2026-01-18 14:48:30] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-18 14:48:30] Normal Mode: Found student NURUL ZAHRA
+[2026-01-18 14:48:30] Duplicate attendance detected for NURUL ZAHRA
+[2026-01-18 14:48:30] Updating live_feed.json
+[2026-01-18 14:48:56] Request received from 192.168.100.72
+[2026-01-18 14:48:56] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-18 14:48:56] Normal Mode: Found student NURUL ZAHRA
+[2026-01-18 14:48:56] Duplicate attendance detected for NURUL ZAHRA
+[2026-01-18 14:48:56] Updating live_feed.json
+[2026-01-18 14:57:15] Request received from 192.168.100.72
+[2026-01-18 14:57:15] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-18 14:57:15] Normal Mode: Card 534BCEEE not registered. Exiting.
+[2026-01-18 14:58:31] Request received from 192.168.100.72
+[2026-01-18 14:58:31] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-18 14:58:43] Request received from 192.168.100.72
+[2026-01-18 14:58:43] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-18 14:59:33] Request received from 192.168.100.72
+[2026-01-18 14:59:33] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-18 14:59:34] Request received from 192.168.100.72
+[2026-01-18 14:59:34] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-18 15:01:17] Request received from 192.168.100.72
+[2026-01-18 15:01:17] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-18 15:01:17] Request received from 192.168.100.72
+[2026-01-18 15:01:17] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-19 10:28:05] Request received from 192.168.100.72
+[2026-01-19 10:28:05] Raw input: {"device_id":"ESP8266-1","uid":"E34FCBEE"}
+[2026-01-19 10:28:10] Request received from 192.168.100.72
+[2026-01-19 10:28:10] Raw input: {"device_id":"ESP8266-1","uid":"D056675F"}
+[2026-01-19 10:28:12] Request received from 192.168.100.72
+[2026-01-19 10:28:12] Raw input: {"device_id":"ESP8266-1","uid":"A345CAEE"}
+[2026-01-19 10:28:15] Request received from 192.168.100.72
+[2026-01-19 10:28:15] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-19 10:28:17] Request received from 192.168.100.72
+[2026-01-19 10:28:17] Raw input: {"device_id":"ESP8266-1","uid":"F34DCBEE"}
+[2026-01-19 10:28:20] Request received from 192.168.100.72
+[2026-01-19 10:28:20] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-19 10:28:22] Request received from 192.168.100.72
+[2026-01-19 10:28:22] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-19 10:28:24] Request received from 192.168.100.72
+[2026-01-19 10:28:24] Raw input: {"device_id":"ESP8266-1","uid":"F34DCBEE"}
+[2026-01-19 10:28:26] Request received from 192.168.100.72
+[2026-01-19 10:28:26] Raw input: {"device_id":"ESP8266-1","uid":"F34DCBEE"}
+[2026-01-19 10:28:31] Request received from 192.168.100.72
+[2026-01-19 10:28:31] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-19 10:28:35] Request received from 192.168.100.72
+[2026-01-19 10:28:35] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-19 10:29:15] Request received from 192.168.100.72
+[2026-01-19 10:29:15] Raw input: {"device_id":"ESP8266-1","uid":"E34FCBEE"}
+[2026-01-19 10:29:24] Request received from 192.168.100.72
+[2026-01-19 10:29:24] Raw input: {"device_id":"ESP8266-1","uid":"E34FCBEE"}
+[2026-01-19 10:29:28] Request received from 192.168.100.72
+[2026-01-19 10:29:28] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-19 10:29:31] Request received from 192.168.100.72
+[2026-01-19 10:29:31] Raw input: {"device_id":"ESP8266-1","uid":"A345CAEE"}
+[2026-01-19 10:29:42] Request received from 192.168.100.72
+[2026-01-19 10:29:42] Raw input: {"device_id":"ESP8266-1","uid":"D056675F"}
+[2026-01-19 10:29:56] Request received from 192.168.100.72
+[2026-01-19 10:29:56] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-19 10:30:38] Request received from 192.168.100.72
+[2026-01-19 10:30:38] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-19 10:30:39] Request received from 192.168.100.72
+[2026-01-19 10:30:39] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-19 10:30:43] Request received from 192.168.100.72
+[2026-01-19 10:30:43] Raw input: {"device_id":"ESP8266-1","uid":"78C704AB"}
+[2026-01-19 10:30:49] Request received from 192.168.100.72
+[2026-01-19 10:30:49] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-19 10:30:51] Request received from 192.168.100.72
+[2026-01-19 10:30:51] Raw input: {"device_id":"ESP8266-1","uid":"A345CAEE"}
+[2026-01-19 10:30:52] Request received from 192.168.100.72
+[2026-01-19 10:30:52] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-19 10:41:32] Request received from 192.168.100.72
+[2026-01-19 10:41:32] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-19 10:43:12] Request received from 192.168.100.72
+[2026-01-19 10:43:12] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-19 10:43:51] Request received from 192.168.100.72
+[2026-01-19 10:43:51] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-19 10:43:51] Request received from 192.168.100.72
+[2026-01-19 10:43:51] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-19 10:44:57] Request received from 192.168.100.72
+[2026-01-19 10:44:57] Raw input: {"device_id":"ESP8266-1","uid":"A345CAEE"}
+[2026-01-19 10:44:57] Normal Mode: Found student SUCI DEWI AMANDA
+[2026-01-19 10:44:57] Inserting new attendance record for SUCI DEWI AMANDA
+[2026-01-19 10:44:57] Database insert success
+[2026-01-19 10:44:57] Updating live_feed.json
+[2026-01-19 10:44:59] Request received from 192.168.100.72
+[2026-01-19 10:44:59] Raw input: {"device_id":"ESP8266-1","uid":"D056675F"}
+[2026-01-19 10:44:59] Normal Mode: Found student MUHTADIN
+[2026-01-19 10:44:59] Inserting new attendance record for MUHTADIN
+[2026-01-19 10:44:59] Database insert success
+[2026-01-19 10:44:59] Updating live_feed.json
+[2026-01-19 10:45:01] Request received from 192.168.100.72
+[2026-01-19 10:45:01] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-19 10:45:01] Normal Mode: Found student NURUL ZAHRA
+[2026-01-19 10:45:01] Inserting new attendance record for NURUL ZAHRA
+[2026-01-19 10:45:01] Database insert success
+[2026-01-19 10:45:01] Updating live_feed.json
+[2026-01-19 10:45:03] Request received from 192.168.100.72
+[2026-01-19 10:45:03] Raw input: {"device_id":"ESP8266-1","uid":"E34FCBEE"}
+[2026-01-19 10:45:03] Normal Mode: Found student EKA SRI MULYANI
+[2026-01-19 10:45:03] Inserting new attendance record for EKA SRI MULYANI
+[2026-01-19 10:45:03] Database insert success
+[2026-01-19 10:45:03] Updating live_feed.json
+[2026-01-19 10:45:04] Request received from 192.168.100.72
+[2026-01-19 10:45:04] Raw input: {"device_id":"ESP8266-1","uid":"F34DCBEE"}
+[2026-01-19 10:45:04] Normal Mode: Found student DAMAR MAYA
+[2026-01-19 10:45:04] Inserting new attendance record for DAMAR MAYA
+[2026-01-19 10:45:04] Database insert success
+[2026-01-19 10:45:04] Updating live_feed.json
+[2026-01-19 10:45:14] Request received from 192.168.100.72
+[2026-01-19 10:45:14] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-19 10:45:14] Normal Mode: Found student jokowi
+[2026-01-19 10:45:14] Inserting new attendance record for jokowi
+[2026-01-19 10:45:15] Database insert success
+[2026-01-19 10:45:15] Updating live_feed.json
+[2026-01-19 10:48:02] Request received from 192.168.100.72
+[2026-01-19 10:48:02] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-19 10:49:59] Request received from 192.168.100.72
+[2026-01-19 10:49:59] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-19 10:50:07] Request received from 192.168.100.72
+[2026-01-19 10:50:07] Raw input: {"device_id":"ESP8266-1","uid":"F34DCBEE"}
+[2026-01-19 10:50:58] Request received from 192.168.100.72
+[2026-01-19 10:50:58] Raw input: {"device_id":"ESP8266-1","uid":"F34DCBEE"}
+[2026-01-19 10:52:02] Request received from 192.168.100.72
+[2026-01-19 10:52:02] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-26 10:06:29] Request received from 192.168.100.63
+[2026-01-26 10:06:29] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-26 10:06:32] Request received from 192.168.100.63
+[2026-01-26 10:06:32] Raw input: {"device_id":"ESP8266-1","uid":"D056675F"}
+[2026-01-26 10:06:34] Request received from 192.168.100.63
+[2026-01-26 10:06:34] Raw input: {"device_id":"ESP8266-1","uid":"A345CAEE"}
+[2026-01-26 10:06:35] Request received from 192.168.100.63
+[2026-01-26 10:06:35] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-26 10:06:37] Request received from 192.168.100.63
+[2026-01-26 10:06:37] Raw input: {"device_id":"ESP8266-1","uid":"F34DCBEE"}
+[2026-01-26 10:06:39] Request received from 192.168.100.63
+[2026-01-26 10:06:39] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-26 10:11:57] Request received from 192.168.100.63
+[2026-01-26 10:11:57] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-26 10:13:19] Request received from 192.168.100.63
+[2026-01-26 10:13:19] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-26 10:13:30] Request received from 192.168.100.63
+[2026-01-26 10:13:30] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-26 10:13:36] Request received from 192.168.100.63
+[2026-01-26 10:13:36] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-26 10:13:44] Request received from 192.168.100.63
+[2026-01-26 10:13:44] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-26 10:13:57] Request received from 192.168.100.63
+[2026-01-26 10:13:57] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-26 10:14:44] Request received from 192.168.100.63
+[2026-01-26 10:14:44] Raw input: {"device_id":"ESP8266-1","uid":"534BCEEE"}
+[2026-01-26 10:14:44] Normal Mode: Found student IKI MARCO
+[2026-01-26 10:14:44] Inserting new attendance record for IKI MARCO
+[2026-01-26 10:14:44] Database insert success
+[2026-01-26 10:14:44] Updating live_feed.json
+[2026-01-26 10:14:47] Request received from 192.168.100.63
+[2026-01-26 10:14:47] Raw input: {"device_id":"ESP8266-1","uid":"D056675F"}
+[2026-01-26 10:14:47] Normal Mode: Found student MUHTADIN
+[2026-01-26 10:14:47] Inserting new attendance record for MUHTADIN
+[2026-01-26 10:14:47] Database insert success
+[2026-01-26 10:14:47] Updating live_feed.json
+[2026-01-26 10:14:49] Request received from 192.168.100.63
+[2026-01-26 10:14:49] Raw input: {"device_id":"ESP8266-1","uid":"038FD9EE"}
+[2026-01-26 10:14:49] Normal Mode: Found student NURUL ZAHRA
+[2026-01-26 10:14:49] Inserting new attendance record for NURUL ZAHRA
+[2026-01-26 10:14:50] Database insert success
+[2026-01-26 10:14:50] Updating live_feed.json
+[2026-01-26 10:14:51] Request received from 192.168.100.63
+[2026-01-26 10:14:51] Raw input: {"device_id":"ESP8266-1","uid":"F34DCBEE"}
+[2026-01-26 10:14:51] Normal Mode: Found student DAMAR MAYA
+[2026-01-26 10:14:51] Inserting new attendance record for DAMAR MAYA
+[2026-01-26 10:14:51] Database insert success
+[2026-01-26 10:14:51] Updating live_feed.json
+[2026-01-26 10:14:53] Request received from 192.168.100.63
+[2026-01-26 10:14:53] Raw input: {"device_id":"ESP8266-1","uid":"A345CAEE"}
+[2026-01-26 10:14:53] Normal Mode: Found student SUCI DEWI AMANDA
+[2026-01-26 10:14:53] Inserting new attendance record for SUCI DEWI AMANDA
+[2026-01-26 10:14:53] Database insert success
+[2026-01-26 10:14:53] Updating live_feed.json
